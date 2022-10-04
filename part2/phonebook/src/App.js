@@ -2,16 +2,21 @@ import { useEffect, useState } from 'react'
 import Filter from './components/Filter'
 import Persons from './components/Persons'
 import PersonForm from './components/PersonForm'
-import axios from 'axios'
+import personService from './services/persons'
+import Notifications from './components/Notifications'
+
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newNameFilter, setNameFilter] = useState('')
+  const [notificationInfo, setNotificationInfo] = useState({ message: null, class: null })
 
   useEffect(() => {
-    axios.get("http://localhost:3001/persons").then(response => setPersons(response.data))
+    personService
+      .getAllContacts()
+      .then(response => setPersons(response))
   }, [])
 
 
@@ -26,16 +31,75 @@ const App = () => {
   const handleNameFilter = (e) => {
     setNameFilter(e.target.value)
   }
+
+  const handleNotifications = (operationType, personName) => {
+
+    switch (operationType) {
+      case 'update':
+        setNotificationInfo({
+          message: `Updated ${personName} number`,
+          class: 'info'
+        })
+      break;
+
+      case 'add':
+        setNotificationInfo({
+          message: `Added ${personName} number`,
+          class: 'info'
+        })
+      break;
+    
+      default:
+        break;
+    }
+
+    setTimeout(() => {
+      setNotificationInfo({
+        message: null,
+        class: null
+      })
+    }, 3000)
+  }
   
   const handleFormSubmit = (e) => {
     e.preventDefault()
 
-    if( persons.filter((person) => person.name === newName).length > 0 ) {
-      alert(`${newName} is already in use`)
+    const nameMatch = persons.filter((person) => person.name === newName)
+
+    if(nameMatch.length > 0) {
+      if( window.confirm(`${newName} is already added to the phonebook, do you want to replace the old number with a new one?`) ){
+        const personToUpdate = {
+          name: newName, 
+          number: newNumber
+        }
+
+        personService
+          .updateContact(personToUpdate, nameMatch[0].id)
+          .then(returnedPerson => {
+            const newPersonsArr = persons.map((person) => person.id === returnedPerson.id ? returnedPerson : person)
+
+            setPersons(newPersonsArr)
+            setNewName('')
+            setNewNumber('')
+
+            handleNotifications('update', returnedPerson.name)
+          })
+      }
     } else {
-      setPersons([...persons, {name: newName, number: newNumber}])
-      setNewName('')
-      setNewNumber('')
+        const newPerson = {
+          name: newName, 
+          number: newNumber
+        }
+
+        personService
+          .saveContact(newPerson)
+          .then(returnedPerson => {
+            setPersons([...persons, returnedPerson])
+            setNewName('')
+            setNewNumber('')
+          })
+
+          handleNotifications('add', newPerson.name)
     }
   }
 
@@ -45,13 +109,15 @@ const App = () => {
     <div>
       <h2>Phonebook</h2>
 
+      <Notifications notificationInfo={notificationInfo} setNotificationInfo={setNotificationInfo}/>
+
       <Filter newNameFilter={newNameFilter} handleNameFilter={handleNameFilter} />
 
       <h2>add a new contact</h2>
       <PersonForm handleFormSubmit={handleFormSubmit} newName={newName} handleNoteChange={handleNoteChange} newNumber={newNumber} handleNumberChange={handleNumberChange} />
       
       <h2>Numbers</h2>
-      <Persons personsToShow={personsToShow}/>
+      <Persons personsToShow={personsToShow} persons={persons} setPersons={setPersons} setNotificationInfo={setNotificationInfo}/>
     </div>
   )
 }
