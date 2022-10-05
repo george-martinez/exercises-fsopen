@@ -1,9 +1,15 @@
 const express = require('express')
+const cors = require('cors')
 const morgan = require('morgan')
 
 const app = express()
 
+app.use(express.static('build'))
+
 app.use(express.json())
+
+app.use(cors())
+
 app.use(morgan(function (tokens, req, res) {
     return [
       tokens.method(req, res),
@@ -72,9 +78,14 @@ app.delete('/api/persons/:id', (request, response) => {
 
     const id = Number(request.params.id)
 
-    data = data.filter(person => person.id !== id)
+    const exist = Boolean(data.find(person => person.id === id))
 
-    return response.status(204).end()
+    if(exist) {
+        data = data.filter(person => person.id !== id)
+        return response.status(204).end()
+    }
+
+    return response.status(404).json(`Person not found`)
 })
 
 app.post('/api/persons', (request, response) => {
