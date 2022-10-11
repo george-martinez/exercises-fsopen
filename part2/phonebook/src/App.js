@@ -11,13 +11,14 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newNameFilter, setNameFilter] = useState('')
-  const [notificationInfo, setNotificationInfo] = useState({ message: null, class: null })
+  const [notificationInfo, setNotificationInfo] = useState({ message: null, classProp: null })
 
   useEffect(() => {
     personService
       .getAllContacts()
       .then(response => setPersons(response))
-  }, [])
+      .catch((e) => handleNotifications(`Error ${e.response.data}.`, 'error'))
+    }, [])
 
 
   const handleNoteChange = (e) => {
@@ -32,31 +33,16 @@ const App = () => {
     setNameFilter(e.target.value)
   }
 
-  const handleNotifications = (operationType, personName) => {
-
-    switch (operationType) {
-      case 'update':
-        setNotificationInfo({
-          message: `Updated ${personName} number`,
-          class: 'info'
-        })
-      break;
-
-      case 'add':
-        setNotificationInfo({
-          message: `Added ${personName} number`,
-          class: 'info'
-        })
-      break;
-    
-      default:
-        break;
-    }
+  const handleNotifications = (message, classProp) => {
+    setNotificationInfo({
+      message: message,
+      classProp: classProp
+    })
 
     setTimeout(() => {
       setNotificationInfo({
         message: null,
-        class: null
+        classProp: null
       })
     }, 3000)
   }
@@ -82,8 +68,9 @@ const App = () => {
             setNewName('')
             setNewNumber('')
 
-            handleNotifications('update', returnedPerson.name)
+            handleNotifications(`Updated ${returnedPerson.name} number`, 'info')
           })
+          .catch((e) => handleNotifications(`Error ${e.response.data}.`, 'error'))
       }
     } else {
         const newPerson = {
@@ -97,9 +84,10 @@ const App = () => {
             setPersons([...persons, returnedPerson])
             setNewName('')
             setNewNumber('')
+            handleNotifications(`Added ${newPerson.name} number`, 'info')
           })
+          .catch((e) => handleNotifications(`Error ${e.response.data}.`, 'error'))
 
-          handleNotifications('add', newPerson.name)
     }
   }
 
@@ -117,7 +105,7 @@ const App = () => {
       <PersonForm handleFormSubmit={handleFormSubmit} newName={newName} handleNoteChange={handleNoteChange} newNumber={newNumber} handleNumberChange={handleNumberChange} />
       
       <h2>Numbers</h2>
-      <Persons personsToShow={personsToShow} persons={persons} setPersons={setPersons} setNotificationInfo={setNotificationInfo}/>
+      <Persons personsToShow={personsToShow} persons={persons} setPersons={setPersons} handleNotifications={handleNotifications}/>
     </div>
   )
 }

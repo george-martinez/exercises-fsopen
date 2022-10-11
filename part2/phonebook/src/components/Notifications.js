@@ -1,12 +1,12 @@
 const Notifications = ({ notificationInfo, setNotificationInfo }) => {
-    if(notificationInfo.class === 'error') {
+    if(notificationInfo.classProp === 'error') {
         return (
-            <h2 className={notificationInfo.class}>{notificationInfo.message}</h2>
+            <h2 className={notificationInfo.classProp}>{notificationInfo.message}</h2>
         )
     }
 
     return (
-        <h2 className={notificationInfo.class}>{notificationInfo.message}</h2>
+        <h2 className={notificationInfo.classProp}>{notificationInfo.message}</h2>
     )
 }
 
