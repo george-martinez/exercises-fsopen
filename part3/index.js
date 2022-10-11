@@ -1,6 +1,9 @@
+require('./mongodb')
 const express = require('express')
 const cors = require('cors')
 const morgan = require('morgan')
+const Person = require('./Models/Person.js')
+const errorHandler = require('./Handlers/errorHandler')
 
 const app = express()
 
@@ -21,31 +24,12 @@ app.use(morgan(function (tokens, req, res) {
     ].join(' ')
 }))
 
-let data = [
-    { 
-      "id": 1,
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": 2,
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": 3,
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": 4,
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
-
-app.get('/api/persons', (request, response) => {
-    return response.status(200).json(data)
+app.get('/api/persons', (request, response, next) => {
+    Person.find({})
+        .then(persons => {
+            return response.status(200).json(persons)
+        })
+        .catch(e => next(e))
 })
 
 app.get('/info', (request, response) => {
@@ -55,60 +39,71 @@ app.get('/info', (request, response) => {
     return response.status(200).send(`<p>Phonebook has info por ${info} people.</p> <p>${date}</p>`)
 })
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
     if(!request.params.id) {
         return response.status(400).json('Bad request')
     }
 
-    const id = Number(request.params.id)
+    const id = request.params.id
 
-    const person = data.find((person) => person.id === id)
-
-    if(!person) {
-        return response.status(404).end()
-    }
-
-    return response.status(200).json(person)
+    Person.findById(id)
+        .then(person => {
+            return response.status(200).json(person)
+        })
+        .catch(e => next(e))
 })
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
     if(!request.params.id) {
         return response.status(400).json('Bad request')
     }
 
-    const id = Number(request.params.id)
+    const id = request.params.id
 
-    const exist = Boolean(data.find(person => person.id === id))
-
-    if(exist) {
-        data = data.filter(person => person.id !== id)
-        return response.status(204).end()
-    }
-
-    return response.status(404).json(`Person not found`)
+    Person.findByIdAndDelete(id)
+        .then(deletedPerson => {
+            return response.status(204).json(deletedPerson)
+        })
+        .catch(e => next(e))
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
     if(!request.body.name || !request.body.number) {
         return response.status(400).json('Bad request, name or number missing')
     }
 
-    const nameInUse = Boolean(data.find((person) => person.name === request.body.name))
-
-    if(nameInUse) {
-        return response.status(404).json({ error: 'name must be unique' })
-    }
-
-    const person = {
-        id: (Math.floor(Math.random()*10000000)),
+    const person = new Person({
         name: request.body.name,
-        number: request.body.number,
+        number: request.body.number
+    })
+
+    person.save()
+        .then(personSaved => {
+            return response.status(201).json(personSaved)
+        })
+        .catch(e => next(e))
+})
+
+app.put('/api/persons/:id', (request, response, next) => {
+    if(!request.params.id) {
+        return response.status(400).json('Bad request')
     }
 
-    data.push(person)
+    if(!request.body.number){
+        return response.status(400).json('Bad request')
+    }
 
-    return response.status(200).json(person)
+    const id = request.params.id
+    const newNumber = request.body.number
+    
+    Person.findByIdAndUpdate(id, { number: newNumber }, { new: true })
+        .then(personUpdated => {
+            return response.status(200).json(personUpdated)
+        })
+        .catch(e => next(e))
 })
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
 
