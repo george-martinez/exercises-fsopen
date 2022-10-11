@@ -20,10 +20,10 @@ const Person = mongoose.model('Person', personSchema)
 
 if(process.argv.length === 3) {
     mongoose.connect(`mongodb+srv://myfirstdb-gm:${pass}@cluster0.pjdxboh.mongodb.net/?retryWrites=true&w=majority`)
-        .then(response => {
+        .then(() => {
             Person.find({})
                 .then(response => {
-                    console.log(`phonebook:`)
+                    console.log('phonebook:')
 
                     response.forEach((person) => {
                         console.log(`${person.name} ${person.number}`)
@@ -42,10 +42,10 @@ if(process.argv.length === 3) {
 
 if(process.argv.length === 5) {
     mongoose.connect(`mongodb+srv://myfirstdb-gm:${pass}@cluster0.pjdxboh.mongodb.net/?retryWrites=true&w=majority`)
-        .then(response => {
+        .then(() => {
             const name = process.argv[3]
             const number = process.argv[4]
-            const person = new Person({ name: name, number: number})
+            const person = new Person({ name: name, number: number })
             person.save()
                 .then(response => {
                     console.log(`added ${response.name} number ${response.number} to phonebook`)

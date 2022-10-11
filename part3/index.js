@@ -15,12 +15,12 @@ app.use(cors())
 
 app.use(morgan(function (tokens, req, res) {
     return [
-      tokens.method(req, res),
-      tokens.url(req, res),
-      tokens.status(req, res),
-      tokens.res(req, res, 'content-length'), '-',
-      tokens['response-time'](req, res), 'ms',
-      JSON.stringify(req.body)
+        tokens.method(req, res),
+        tokens.url(req, res),
+        tokens.status(req, res),
+        tokens.res(req, res, 'content-length'), '-',
+        tokens['response-time'](req, res), 'ms',
+        JSON.stringify(req.body)
     ].join(' ')
 }))
 
@@ -32,11 +32,13 @@ app.get('/api/persons', (request, response, next) => {
         .catch(e => next(e))
 })
 
-app.get('/info', (request, response) => {
+app.get('/info', (request, response, next) => {
     const date = new Date()
-    const info = data.length
-
-    return response.status(200).send(`<p>Phonebook has info por ${info} people.</p> <p>${date}</p>`)
+    Person.count({})
+        .then(info => {
+            return response.status(200).send(`<p>Phonebook has info of ${info} people.</p> <p>${date}</p>`)
+        })
+        .catch(e => next(e))
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
@@ -95,8 +97,8 @@ app.put('/api/persons/:id', (request, response, next) => {
 
     const id = request.params.id
     const newNumber = request.body.number
-    
-    Person.findByIdAndUpdate(id, { number: newNumber }, { new: true })
+
+    Person.findByIdAndUpdate(id, { number: newNumber }, { new: true, runValidators: true, context: 'query' })
         .then(personUpdated => {
             return response.status(200).json(personUpdated)
         })
@@ -108,5 +110,5 @@ app.use(errorHandler)
 const PORT = process.env.PORT || 3001
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+    console.log(`Server running on port ${PORT}`)
 })

@@ -70,7 +70,7 @@ const App = () => {
 
             handleNotifications(`Updated ${returnedPerson.name} number`, 'info')
           })
-          .catch((e) => handleNotifications(`Error ${e.response.data}.`, 'error'))
+          .catch((e) => handleNotifications(`Error ${e.response.data.error}.`, 'error'))
       }
     } else {
         const newPerson = {
@@ -86,7 +86,7 @@ const App = () => {
             setNewNumber('')
             handleNotifications(`Added ${newPerson.name} number`, 'info')
           })
-          .catch((e) => handleNotifications(`Error ${e.response.data}.`, 'error'))
+          .catch((e) => handleNotifications(`Error ${e.response.data.error}.`, 'error'))
 
     }
   }
