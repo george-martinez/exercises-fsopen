@@ -1,0 +1,16 @@
+GET http://localhost:3003/api/blogs
+content-type: application/json
+
+{}
+
+###
+
+POST http://localhost:3003/api/blogs
+content-type: application/json
+
+{
+  "title": "New note title123123",
+  "author": "George",
+  "url": "www.quemiras.com",
+  "likes": "89901932901"
+}
