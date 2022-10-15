@@ -36,7 +36,7 @@ const mostBlogs = (blogs) => {
         author: '',
         blogs: 0
     }
-    
+
     blogs.forEach(blog => acc[blog.author] ? acc[blog.author]++ : acc[blog.author] = 1)
 
     const authors = Object.keys(acc)
@@ -47,7 +47,7 @@ const mostBlogs = (blogs) => {
             authorWithMostBlogs.blogs = acc[author]
         }
     })
-    
+
     return authorWithMostBlogs
 }
 
@@ -61,7 +61,7 @@ const mostLikes = (blogs) => {
         author: '',
         likes: 0
     }
-    
+
     blogs.forEach(blog => acc[blog.author] ? acc[blog.author] += blog.likes : acc[blog.author] = blog.likes)
 
     const authors = Object.keys(acc)
@@ -72,11 +72,11 @@ const mostLikes = (blogs) => {
             authorWithMostLikes.likes = acc[author]
         }
     })
-    
+
     return authorWithMostLikes
 }
 
-  
+
 module.exports = {
     totalLikes,
     favoriteBlog,

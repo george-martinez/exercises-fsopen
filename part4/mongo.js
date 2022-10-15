@@ -5,10 +5,19 @@ const url = config.MONGODB_URI
 
 console.log('connecting to', url)
 
-mongoose.connect(url)
-    .then(() => {
-        console.log('connected to MongoDB')
-    })
-    .catch((error) => {
-        console.log('error connecting to MongoDB:', error.message)
-    })
+const options = {}
+
+const connectDB = () => {
+    return mongoose.connect(url, options)
+        .then(() => {
+            console.log('Database connected')
+        }).catch(err => {
+            console.error(err)
+        })
+}
+
+const closeDB = async () => {
+    return await mongoose.disconnect()
+}
+
+module.exports = { connectDB, closeDB }

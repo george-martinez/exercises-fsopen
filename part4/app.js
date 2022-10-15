@@ -1,5 +1,11 @@
-require('./mongo')
+const { connectDB } = require('./mongo')
+
+if (process.env.NODE_ENV === 'production'){
+    connectDB()
+}
+
 const express = require('express')
+require('express-async-errors')
 const cors = require('cors')
 const middleware = require('./utils/middleware')
 
