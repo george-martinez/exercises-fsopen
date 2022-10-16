@@ -19,30 +19,22 @@ beforeEach(async () => {
     await User.deleteMany({})
     await Blog.deleteMany({})
 
-    await api
-        .post('/api/users')
-        .send(userHelper.initialUsers[0])
+    await userHelper.saveUserInDb(userHelper.initialUsers[0])
+    await userHelper.saveUserInDb(userHelper.initialUsers[1])
 
-    await api
-        .post('/api/users')
-        .send(userHelper.initialUsers[1])
-
-    const users = await userHelper.usersInDb()
-    const userId = users[0].id
+    const { token, user } = await userHelper.loginUser(userHelper.initialUsers[0])
+    BEARER_TOKEN = token
 
     const initialBlogs = blogsHelper.initialBlogs.map(blog => {
-        blog.user = userId
-        return blog
+        const modifiedBlog = {
+            ...blog,
+            user: user
+        }
+
+        return modifiedBlog
     })
 
     await Blog.insertMany(initialBlogs)
-
-    const loginResponse = await api
-        .post('/api/login')
-        .send(userHelper.initialUsers[0])
-
-
-    BEARER_TOKEN = loginResponse.body.token
 })
 
 
@@ -64,12 +56,20 @@ describe('POST /api/blogs', () => {
         expect(blogs[0].id).toBeDefined()
     })
 
+    test('request without a blog in body fails with error 400 bad request', async () => {
+        const initialBlogs = await blogsHelper.blogsInDb()
+
+        await api
+            .post('/api/blogs')
+            .set('Authorization', `Bearer ${BEARER_TOKEN}`)
+            .expect(400)
+            .expect('Content-Type', /application\/json/)
+
+        expect(initialBlogs).toHaveLength(blogsHelper.initialBlogs.length)
+    })
+
     test('blog is correctly added', async () => {
         const blogToAdd = blogsHelper.listWithOneBlog[0]
-        const users = await userHelper.usersInDb()
-        const userId = users[0].id
-
-        blogToAdd.userId = userId
 
         const addedBlogResponse = await api
             .post('/api/blogs')
@@ -88,12 +88,6 @@ describe('POST /api/blogs', () => {
         const blogToAdd = blogsHelper.listWithOneBlog[0]
         delete blogToAdd.likes
 
-        const users = await userHelper.usersInDb()
-
-        const userId = users[0].id
-
-        blogToAdd.userId = userId
-
         const addedBlogResponse = await api
             .post('/api/blogs')
             .send(blogToAdd)
@@ -106,16 +100,11 @@ describe('POST /api/blogs', () => {
     })
 
     test('if title or url property are missing, server returns BadRequest', async () => {
-        const users = await userHelper.usersInDb()
-        const userId = users[0].id
-
         const blogToAdd1 = JSON.parse(JSON.stringify(blogsHelper.listWithOneBlog[0]))
         delete blogToAdd1.title
-        blogToAdd1.userId = userId
 
         const blogToAdd2 = JSON.parse(JSON.stringify(blogsHelper.listWithOneBlog[0]))
         delete blogToAdd2.url
-        blogToAdd2.userId = userId
 
         await api
             .post('/api/blogs')
@@ -131,6 +120,52 @@ describe('POST /api/blogs', () => {
             .send(blogToAdd2)
             .expect(400)
             .expect('Content-Type', /application\/json/)
+    })
+
+    test('returns status code 401 if token is still valid but user has been deleted', async () => {
+        const initialBlogs = await blogsHelper.blogsInDb()
+        const blogToAdd = blogsHelper.listWithOneBlog[0]
+
+        const { token } = await userHelper.loginUser(userHelper.initialUsers[1])
+        BEARER_TOKEN = token
+
+        await User.deleteMany({})
+
+        await api
+            .post('/api/blogs')
+            .set('Authorization', `Bearer ${BEARER_TOKEN}`)
+            .send(blogToAdd)
+            .expect(401)
+            .expect('Content-Type', /application\/json/)
+
+        const blogsAtEnd = await blogsHelper.blogsInDb()
+
+        expect(blogsAtEnd).toHaveLength(initialBlogs.length)
+    })
+
+    test('if auth token is not provided server returns status 401 - Unauthorized', async () => {
+        const blogToAdd = JSON.parse(JSON.stringify(blogsHelper.listWithOneBlog[0]))
+
+        const response = await api
+            .post('/api/blogs')
+            .send(blogToAdd)
+            .expect(401)
+            .expect('Content-Type', /application\/json/)
+
+        expect(response.body.error).toContain('invalid or missing token')
+    })
+
+    test('if auth token is invalid server returns status 401 - Unauthorized', async () => {
+        const blogToAdd = JSON.parse(JSON.stringify(blogsHelper.listWithOneBlog[0]))
+
+        const response = await api
+            .post('/api/blogs')
+            .send(blogToAdd)
+            .set('Authorization', 'Bearer HiImAnInventedToken')
+            .expect(401)
+            .expect('Content-Type', /application\/json/)
+
+        expect(response.body.error).toContain('invalid or missing token')
     })
 })
 
@@ -148,6 +183,101 @@ describe('DELETE /api/blogs', () => {
         expect(blogsAtEnd).toHaveLength(initialBlogs.length - 1)
         expect(blogsAtEnd).not.toContain(initialBlogs[0].title)
     })
+
+    test('returns status code 404 if id is undefined', async () => {
+        const initialBlogs = await blogsHelper.blogsInDb()
+
+        await api
+            .delete('/api/blogs/')
+            .set('Authorization', `Bearer ${BEARER_TOKEN}`)
+            .expect(404)
+
+        const blogsAtEnd = await blogsHelper.blogsInDb()
+
+        expect(blogsAtEnd).toHaveLength(initialBlogs.length)
+    })
+
+    test('returns status code 401 if the user trying to delete the blog its not the owner', async () => {
+        const initialBlogs = await blogsHelper.blogsInDb()
+
+        const { token } = await userHelper.loginUser(userHelper.initialUsers[1])
+        BEARER_TOKEN = token
+
+        await api
+            .delete(`/api/blogs/${initialBlogs[0].id}`)
+            .set('Authorization', `Bearer ${BEARER_TOKEN}`)
+            .expect(401)
+
+        const blogsAtEnd = await blogsHelper.blogsInDb()
+
+        expect(blogsAtEnd).toHaveLength(initialBlogs.length)
+    })
+
+    test('returns status code 401 if token is still valid but user has been deleted', async () => {
+        const initialBlogs = await blogsHelper.blogsInDb()
+
+        const { token } = await userHelper.loginUser(userHelper.initialUsers[0])
+        BEARER_TOKEN = token
+
+        await User.deleteMany({})
+
+        await api
+            .delete(`/api/blogs/${initialBlogs[0].id}`)
+            .set('Authorization', `Bearer ${BEARER_TOKEN}`)
+            .expect(401)
+
+        const blogsAtEnd = await blogsHelper.blogsInDb()
+
+        expect(blogsAtEnd).toHaveLength(initialBlogs.length)
+    })
+
+    test('returns status code 400 if blog to delete has already deleted or if id is invalid', async () => {
+        const initialBlogs = await blogsHelper.blogsInDb()
+        const id = 'blogidthathasalreadydeleted'
+
+        await api
+            .delete(`/api/blogs/${id}`)
+            .set('Authorization', `Bearer ${BEARER_TOKEN}`)
+            .expect(400)
+
+        const blogsAtEnd = await blogsHelper.blogsInDb()
+        const blogsAtEndIds = blogsAtEnd.map(blog => blog.id)
+
+        expect(blogsAtEnd).toHaveLength(initialBlogs.length)
+        expect(blogsAtEndIds).not.toContain(id)
+    })
+
+    test('if auth token is not provided server returns status 401 - Unauthorized', async () => {
+        const initialBlogs = await blogsHelper.blogsInDb()
+
+        const response = await api
+            .delete(`/api/blogs/${initialBlogs[0].id}`)
+            .expect(401)
+
+        const blogsAtEnd = await blogsHelper.blogsInDb()
+        const blogsAtEndTitles = blogsAtEnd.map(blog => blog.title)
+
+        expect(blogsAtEnd).toHaveLength(initialBlogs.length)
+        expect(blogsAtEndTitles).toContain(initialBlogs[0].title)
+        expect(response.body.error).toContain('invalid or missing token')
+    })
+
+    test('if auth token is invalid server returns status 401 - Unauthorized', async () => {
+        const initialBlogs = await blogsHelper.blogsInDb()
+
+        const response = await api
+            .delete(`/api/blogs/${initialBlogs[0].id}`)
+            .set('Authorization', 'Bearer HiImAnInventedToken2')
+            .expect(401)
+
+        const blogsAtEnd = await blogsHelper.blogsInDb()
+        const blogsAtEndTitles = blogsAtEnd.map(blog => blog.title)
+
+        expect(blogsAtEnd).toHaveLength(initialBlogs.length)
+        expect(blogsAtEndTitles).toContain(initialBlogs[0].title)
+        expect(response.body.error).toContain('invalid or missing token')
+    })
+
 })
 
 describe('PUT /api/blogs', () => {
@@ -161,12 +291,58 @@ describe('PUT /api/blogs', () => {
             .put(`/api/blogs/${blogToUpdate.id}`)
             .send(blogToUpdate)
             .expect(200)
+            .set('Authorization', `Bearer ${BEARER_TOKEN}`)
             .expect('Content-Type', /application\/json/)
 
         const blogsAtEnd = await blogsHelper.blogsInDb()
 
         expect(blogsAtEnd).toHaveLength(blogsHelper.initialBlogs.length)
         expect(updatedBlogResponse.body.likes).toBe(newLikes)
+    })
+
+    test('returns status code 401 if token is still valid but user has been deleted', async () => {
+        const initialBlogs = await blogsHelper.blogsInDb()
+        const blogToUpdate = initialBlogs[0]
+        const newLikes = 1272
+        blogToUpdate.likes = newLikes
+
+        const { token } = await userHelper.loginUser(userHelper.initialUsers[1])
+        BEARER_TOKEN = token
+        await User.deleteMany({})
+
+        const updatedBlogResponse = await api
+            .put(`/api/blogs/${blogToUpdate.id}`)
+            .send(blogToUpdate)
+            .expect(401)
+            .set('Authorization', `Bearer ${BEARER_TOKEN}`)
+            .expect('Content-Type', /application\/json/)
+
+        const blogsAtEnd = await blogsHelper.blogsInDb()
+
+        expect(blogsAtEnd).toHaveLength(blogsHelper.initialBlogs.length)
+        expect(updatedBlogResponse.body.error).toContain('Invalid or missing user')
+    })
+
+    test('returns status code 401 if the user trying to delete the blog its not the owner', async () => {
+        const initialBlogs = await blogsHelper.blogsInDb()
+        const blogToUpdate = initialBlogs[0]
+        const newLikes = 1272
+        blogToUpdate.likes = newLikes
+
+        const { token } = await userHelper.loginUser(userHelper.initialUsers[1])
+        BEARER_TOKEN = token
+
+        const updatedBlogResponse = await api
+            .put(`/api/blogs/${blogToUpdate.id}`)
+            .send(blogToUpdate)
+            .expect(401)
+            .set('Authorization', `Bearer ${BEARER_TOKEN}`)
+            .expect('Content-Type', /application\/json/)
+
+        const blogsAtEnd = await blogsHelper.blogsInDb()
+
+        expect(blogsAtEnd).toHaveLength(initialBlogs.length)
+        expect(updatedBlogResponse.body.error).toContain('blog can be updated only by the owner')
     })
 
     test('throws Bad Request if title are null', async () => {
@@ -177,6 +353,7 @@ describe('PUT /api/blogs', () => {
         await api
             .put(`/api/blogs/${blogToUpdate.id}`)
             .send(blogToUpdate)
+            .set('Authorization', `Bearer ${BEARER_TOKEN}`)
             .expect(400)
             .expect('Content-Type', /application\/json/)
     })
@@ -189,6 +366,7 @@ describe('PUT /api/blogs', () => {
         await api
             .put(`/api/blogs/${blogToUpdate.id}`)
             .send(blogToUpdate)
+            .set('Authorization', `Bearer ${BEARER_TOKEN}`)
             .expect(400)
             .expect('Content-Type', /application\/json/)
     })

@@ -9,11 +9,19 @@ userRouter.get('/', async (req, res) => {
     res.status(200).json(users)
 })
 
-userRouter.get('/deletemany', async (req, res) => {
+userRouter.post('/deletemany', async (req, res) => {
     await User.deleteMany({})
     await Blog.deleteMany({})
 
     res.end()
+})
+
+userRouter.delete('/:id', async (req, res) => {
+    const id = req.params.id
+
+    await User.remove({ id: id })
+
+    res.status(200).json('User correctly deleted.')
 })
 
 userRouter.post('/', async (req, res) => {

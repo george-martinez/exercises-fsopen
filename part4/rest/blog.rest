@@ -7,7 +7,7 @@ content-type: application/json
 
 POST http://localhost:3003/api/blogs
 content-type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjYzNGJkMjRkM2Y2NjgxNTEyMzk1ZWU2NSIsImlhdCI6MTY2NTkxMzQ0NiwiZXhwIjoxNjY2MTcyNjQ2fQ.3ocICd122R4pN0hFjzkmAEfV7VrXKmMnspkjSWJt8IE
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjYzNGM3ODcyZTc1MDA5NTIzM2FlNGRmOSIsImlhdCI6MTY2NTk1NTk1OCwiZXhwIjoxNjY2MjE1MTU4fQ.K9hItkCotw3JePJqNpW3kcDD8n7TXDmn-71RY_gM5dA
 
 {
   "title": "New blog title 1",
@@ -19,10 +19,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb
 
 ###
 
-DELETE http://localhost:3003/api/blogs/634bd2fd86366949c0c194ec
+DELETE http://localhost:3003/api/blogs/634c7888e750095233ae4dfe
 content-type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjYzNGJkMjRkM2Y2NjgxNTEyMzk1ZWU2NSIsImlhdCI6MTY2NTkxMzQ0NiwiZXhwIjoxNjY2MTcyNjQ2fQ.3ocICd122R4pN0hFjzkmAEfV7VrXKmMnspkjSWJt8IE
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjYzNGM3ODcyZTc1MDA5NTIzM2FlNGRmOSIsImlhdCI6MTY2NTk1NTk1OCwiZXhwIjoxNjY2MjE1MTU4fQ.K9hItkCotw3JePJqNpW3kcDD8n7TXDmn-71RY_gM5dA
 
 
 ###
+
+
 

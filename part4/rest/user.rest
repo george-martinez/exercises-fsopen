@@ -24,3 +24,21 @@ content-type: application/json
   "password": "testpass",
   "name": "Test Name"
 }
+
+###
+
+DELETE http://localhost:3003/api/users/634c7813e750095233ae4de2
+content-type: application/json
+
+{
+  "username": "root",
+  "password": "testpass",
+  "name": "Test Name"
+}
+
+###
+//DELETE ALL DATA
+POST http://localhost:3003/api/users/deletemany
+content-type: application/json
+
+{}
