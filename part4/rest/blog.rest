@@ -7,10 +7,22 @@ content-type: application/json
 
 POST http://localhost:3003/api/blogs
 content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjYzNGJkMjRkM2Y2NjgxNTEyMzk1ZWU2NSIsImlhdCI6MTY2NTkxMzQ0NiwiZXhwIjoxNjY2MTcyNjQ2fQ.3ocICd122R4pN0hFjzkmAEfV7VrXKmMnspkjSWJt8IE
 
 {
-  "title": "New blog title123123",
+  "title": "New blog title 1",
   "author": "George",
   "url": "www.test.com",
-  "likes": "89901932901"
+  "likes": "2",
+  "userId": "634bd24d3f6681512395ee65"
 }
+
+###
+
+DELETE http://localhost:3003/api/blogs/634bd2fd86366949c0c194ec
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjYzNGJkMjRkM2Y2NjgxNTEyMzk1ZWU2NSIsImlhdCI6MTY2NTkxMzQ0NiwiZXhwIjoxNjY2MTcyNjQ2fQ.3ocICd122R4pN0hFjzkmAEfV7VrXKmMnspkjSWJt8IE
+
+
+###
+

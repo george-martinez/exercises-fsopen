@@ -1,29 +1,53 @@
 const Blog = require('../models/blogModel')
+const User = require('../models/userModel')
+const userExtractor = require('../utils/middleware').userExtractor
 
 const blogRouter = require('express').Router()
 
 blogRouter.get('/', async (request, response) => {
-    const blogs = await Blog.find({})
+    const blogs = await Blog.find({}).populate('user')
 
     response.json(blogs)
 })
 
-blogRouter.post('/', async (request, response) => {
+blogRouter.post('/', userExtractor, async (request, response) => {
     if(!request.body) return response.status(400).end()
 
-    const blogToAdd = request.body
+    const { title, author, url, likes, userId } = request.body
 
-    const addedBlog = new Blog(blogToAdd)
+    if(!userId) return response.status(400).json({ error: 'request must contain userId field' })
 
-    const result = await addedBlog.save()
+    const user = await User.findById(request.user.id)
 
-    response.status(201).json(result)
+    if(!user) return response.status(400).json({ error: 'Invalid or missing id' })
+
+    const blogToAdd = new Blog({
+        title,
+        author,
+        url,
+        likes,
+        user: userId
+    })
+
+    const addedBlog = await blogToAdd.save()
+
+    user.blogs = user.blogs.concat(addedBlog._id)
+
+    await user.save()
+
+    response.status(201).json(addedBlog)
 })
 
-blogRouter.delete('/:id', async (request, response) => {
+blogRouter.delete('/:id', userExtractor, async (request, response) => {
     if(!request.params) return response.status(400).end()
 
     const id = request.params.id
+
+    const blogToDelete = await Blog.findById(id)
+
+    if(blogToDelete.user.toString() !== request.user.id.toString()){
+        return response.status(401).json({ error: 'blog can be deleted only by the owner' })
+    }
 
     await Blog.deleteOne({ id: id })
 
