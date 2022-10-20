@@ -3,10 +3,10 @@ const jwt = require('jsonwebtoken')
 const JWT_SECRET = require('../utils/config').JWT_SECRET
 
 const requestLogger = (request, response, next) => {
-/*     logger.info('Method:', request.method)
+    logger.info('Method:', request.method)
     logger.info('Path:  ', request.path)
     logger.info('Body:  ', request.body)
-    logger.info('---') */
+    logger.info('---')
     next()
 }
 

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const User = require('./userModel')
 
 const blogSchema = new mongoose.Schema({
     title: {
@@ -27,6 +28,20 @@ blogSchema.set('toJSON', {
         delete returnedObject._id
         delete returnedObject.__v
     }
+})
+
+blogSchema.pre('deleteOne', { document: false, query: true }, async function () {
+    const blogToDelete = await this.model.findOne(this.getFilter())
+
+    const userId =  blogToDelete.user.toString()
+
+    const user = await User.findById(userId)
+
+    const index = user.blogs.indexOf(userId)
+
+    user.blogs.splice(index, 1)
+
+    await user.save()
 })
 
 const Blog = mongoose.model('Blog', blogSchema)

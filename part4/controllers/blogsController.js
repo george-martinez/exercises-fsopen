@@ -11,7 +11,7 @@ blogRouter.get('/', async (request, response) => {
 })
 
 blogRouter.post('/', userExtractor, async (request, response) => {
-    const { title, author, url, likes } = request.body
+    const { title, author, url } = request.body
 
     if(!title || !url ) return response.status(400).json({ error: 'title and url are required parameters' })
 
@@ -22,7 +22,7 @@ blogRouter.post('/', userExtractor, async (request, response) => {
         title,
         author,
         url,
-        likes,
+        likes: request.body.likes || 0,
         user: user._id
     })
 
@@ -37,19 +37,24 @@ blogRouter.post('/', userExtractor, async (request, response) => {
 
 blogRouter.delete('/:id', userExtractor, async (request, response) => {
     const id = request.params.id
+    console.log('🚀 ~ file: blogsController.js ~ line 40 ~ blogRouter.delete ~ id', id)
 
     const blogToDelete = await Blog.findById(id)
 
-    if(blogToDelete.user.toString() !== request.user.id.toString()){
+    if(!blogToDelete) {
+        return response.status(400).json({ error: 'blog has been already deleted' })
+    }
+
+    if(blogToDelete?.user.toString() !== request.user.id.toString()){
         return response.status(401).json({ error: 'blog can be deleted only by the owner' })
     }
 
     const user = await User.findById(request.user.id.toString())
     if(!user) return response.status(401).json({ error: 'Invalid or missing user' })
 
-    await Blog.deleteOne({ id: id })
+    await Blog.deleteOne({ _id: id })
 
-    response.status(204).end()
+    response.status(204).send()
 })
 
 blogRouter.put('/:id', userExtractor, async (request, response) => {
@@ -68,7 +73,7 @@ blogRouter.put('/:id', userExtractor, async (request, response) => {
         return response.status(401).json({ error: 'blog can be updated only by the owner' })
     }
 
-    const updatedBlog = await Blog.findByIdAndUpdate(id, newBlogInfo, { new: true, runValidators: true, context: 'query' })
+    const updatedBlog = await Blog.findByIdAndUpdate(id, newBlogInfo, { new: true, runValidators: true, context: 'query' }).populate('user')
 
     response.status(200).json(updatedBlog)
 })
