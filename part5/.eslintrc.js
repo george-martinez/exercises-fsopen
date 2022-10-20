@@ -2,7 +2,8 @@ module.exports = {
     "env": {
         "browser": true,
         "es6": true,
-        "jest/globals": true
+        "jest/globals": true,
+        "jest": true
     },
     "extends": [ 
         "eslint:recommended",
@@ -12,7 +13,7 @@ module.exports = {
         "ecmaFeatures": {
             "jsx": true
         },
-        "ecmaVersion": 2018,
+        "ecmaVersion": 2020,
         "sourceType": "module"
     },
     "plugins": [
@@ -21,11 +22,11 @@ module.exports = {
     "rules": {
         "indent": [
             "error",
-            2  
+            4  
         ],
         "linebreak-style": [
             "error",
-            "unix"
+            "windows"
         ],
         "quotes": [
             "error",

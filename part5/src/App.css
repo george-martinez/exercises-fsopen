@@ -32,7 +32,7 @@ button:hover {
     width: 50%;
 }
 
-.blog {
+.blog, .expanded-blog {
     border: 2px solid aquamarine;
     width: fit-content;
     padding: 10px;

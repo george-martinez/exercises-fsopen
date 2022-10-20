@@ -2,72 +2,72 @@ import { useState } from 'react'
 import blogService from '../services/blogs'
 
 const BlogForm = ({ setNotificationMessage, blogs, setBlogs, blogFormRef }) => {
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
+    const [title, setTitle] = useState('')
+    const [author, setAuthor] = useState('')
+    const [url, setUrl] = useState('')
 
-  const handleAddBlog = async (event) => {
-    event.preventDefault()
+    const handleAddBlog = async (event) => {
+        event.preventDefault()
 
-    const newBlog = {
-      title,
-      author,
-      url
+        const newBlog = {
+            title,
+            author,
+            url
+        }
+
+        try {
+            const createdBlog = await blogService.create(newBlog)
+
+            setNotificationMessage(`A new blog ${title} by ${author} has been added`)
+            setTimeout(() => {
+                setNotificationMessage(null)
+            }, 5000)
+
+            setTitle('')
+            setAuthor('')
+            setUrl('')
+            setBlogs([...blogs, createdBlog])
+            blogFormRef.current.toggleVisibility()
+        } catch (error) {
+            const message = error?.response?.data?.error
+
+            setNotificationMessage(`${message}`)
+
+            setTimeout(() => {
+                setNotificationMessage(null)
+            }, 5000)
+        }
     }
 
-    try {
-      const createdBlog = await blogService.create(newBlog)
-
-      setNotificationMessage(`A new blog ${title} by ${author} has been added`)
-      setTimeout(() => {
-        setNotificationMessage(null)
-      }, 5000)
-
-      setTitle('')
-      setAuthor('')
-      setUrl('')
-      setBlogs([...blogs, createdBlog])
-      blogFormRef.current.toggleVisibility()
-    } catch (error) {
-      setNotificationMessage(`${error.response.data.error}`)
-
-      setTimeout(() => {
-        setNotificationMessage(null)
-      }, 5000)
-
-      console.log(error)
-    }
-  }
-
-  return(
-    <div>
-      <form onSubmit={handleAddBlog}>
-        <p>Create a new blog:</p>
-        <p>
+    return(
+        <div>
+            <form onSubmit={handleAddBlog}>
+                <p>Create a new blog:</p>
+                <p>
             title:
-          <input
-            value={title}
-            onChange={({ target }) => setTitle(target.value)}
-          />
-        </p>
-        <p>
+                    <input
+                        value={title}
+                        onChange={({ target }) => setTitle(target.value)}
+                    />
+                </p>
+                <p>
             author:
-          <input
-            value={author}
-            onChange={({ target }) => setAuthor(target.value)}
-          />
-        </p>
-        <p>
+                    <input
+                        value={author}
+                        onChange={({ target }) => setAuthor(target.value)}
+                    />
+                </p>
+                <p>
             url:
-          <input
-            value={url}
-            onChange={({ target }) => setUrl(target.value)}
-          />
-        </p>
-        <button type="submit">create</button>
-      </form>
-    </div>
-  )
+                    <input
+                        value={url}
+                        onChange={({ target }) => setUrl(target.value)}
+                    />
+                </p>
+                <button type="submit">create</button>
+            </form>
+        </div>
+    )
 }
 
 
