@@ -50,9 +50,7 @@ const App = () => {
 
             {
                 user === null ?
-                    <Togglable buttonLabel="login">
-                        <LoginForm setUser={setUser} />
-                    </Togglable> :
+                    <LoginForm setUser={setUser} /> :
                     <div>
                         <Togglable buttonLabel="New Blog" ref={blogFormRef}>
                             <BlogForm

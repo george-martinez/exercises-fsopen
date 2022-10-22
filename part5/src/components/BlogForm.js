@@ -48,6 +48,7 @@ const BlogForm = ({ setNotificationMessage, blogs, setBlogs, blogFormRef }) => {
                     <input
                         value={title}
                         onChange={({ target }) => setTitle(target.value)}
+                        id='new-blog-form-title'
                     />
                 </p>
                 <p>
@@ -55,6 +56,7 @@ const BlogForm = ({ setNotificationMessage, blogs, setBlogs, blogFormRef }) => {
                     <input
                         value={author}
                         onChange={({ target }) => setAuthor(target.value)}
+                        id='new-blog-form-author'
                     />
                 </p>
                 <p>
@@ -62,9 +64,10 @@ const BlogForm = ({ setNotificationMessage, blogs, setBlogs, blogFormRef }) => {
                     <input
                         value={url}
                         onChange={({ target }) => setUrl(target.value)}
+                        id='new-blog-form-url'
                     />
                 </p>
-                <button type="submit">create</button>
+                <button type="submit" id='new-blog-form-create-button'>create</button>
             </form>
         </div>
     )

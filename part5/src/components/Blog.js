@@ -43,11 +43,11 @@ const Blog = ({ blog, setBlogs, blogs, setNotificationMessage }) => {
         if(!window.confirm(`Remove blog ${title} by ${author}`)) return null
 
         try {
+            await remove(id)
             const blogsCopy = blogs.map(arrItem => arrItem)
             const index = blogsCopy.findIndex(blogCopy => blogCopy.id === id)
             blogsCopy.splice(index, 1)
             setBlogs(blogsCopy)
-            await remove(id)
         } catch (error) {
             console.error(error)
             setNotificationMessage(`Error: ${error.response.data.error}`)
@@ -68,7 +68,7 @@ const Blog = ({ blog, setBlogs, blogs, setNotificationMessage }) => {
                     <button onClick={() => handleDelete()}>remove blog</button>
                 </div> :
                 <div className="blog">
-                    <p>Title: {blog.title} - by: {blog.author} <button onClick={() =>  toggleView()}>view</button></p>
+                    <p>Title: {blog.title} - by: {blog.author} <button onClick={() =>  toggleView()} className='blog-view-button'>view</button></p>
                 </div>
             }
         </div>

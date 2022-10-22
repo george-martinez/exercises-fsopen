@@ -1,6 +1,5 @@
-const { connectDB } = require('./mongo')
-
-if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'development'){
+if (process.env.NODE_ENV !== 'test'){
+    const { connectDB } = require('./mongo')
     connectDB()
 }
 
@@ -17,6 +16,11 @@ const loginController = require('./controllers/loginController')
 
 app.use(cors())
 app.use(express.json())
+
+if (process.env.NODE_ENV === 'e2etest') {
+    const testingController = require('./controllers/testingController')
+    app.use('/api/testing', testingController)
+}
 
 app.use(middleware.requestLogger)
 app.use(middleware.tokenExtractor)
