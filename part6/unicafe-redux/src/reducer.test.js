@@ -63,7 +63,7 @@ describe('unicafe reducer', () => {
     })
   })
 
-  test('reset sets good, ok and bad to zero', () => {
+  test('reset sets good, ok and bad numbers to zero', () => {
     const action = {
       type: 'ZERO'
     }
