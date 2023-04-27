@@ -10,7 +10,6 @@ const AnecdoteList = () => {
     const dispatch = useDispatch()
 
     const vote = (id) => {
-        console.log('vote', id)
         dispatch(newVote(id))
         dispatch(setNotification(anecdotes.find(anecdotes => anecdotes.id === id).content))
     }
