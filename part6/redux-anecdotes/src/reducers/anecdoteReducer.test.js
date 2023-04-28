@@ -13,7 +13,6 @@ describe('anecdoteReducer', () => {
         deepFreeze(state)
 
         const newState = anecdoteReducer(state, action)
-        console.log("🚀 ~ file: anecdoteReducer.test.js:23 ~ test ~ newState:", newState)
         
         expect(newState).toHaveLength(1)
         expect(newState.map(s => s.content)).toContainEqual(action.payload)

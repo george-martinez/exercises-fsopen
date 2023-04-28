@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { removeNotification } from '../reducers/notificationReducer'
 
 const Notification = () => {
-  const notification = useSelector(state => state.notification)
+  const { notification, timeToDisplay } = useSelector(state => state.notification)
   const dispatch = useDispatch()
 
   const style = {
@@ -19,18 +19,18 @@ const Notification = () => {
     if (notification) {
       timeOutId = setTimeout(() => {
         dispatch(removeNotification())
-      }, 5000);
+      }, timeToDisplay)
     }
 
     return () => {
       clearTimeout(timeOutId)
     }
-  }, [notification, dispatch]);
+  }, [notification, dispatch, timeToDisplay]);
   
   return (
     <div style={style}>
       {
-        `You added/vote this anecdote: ${notification}`
+        notification
       }
     </div>
   )
