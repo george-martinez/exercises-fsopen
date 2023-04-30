@@ -1,14 +1,21 @@
 import { useMutation, useQueryClient } from 'react-query'
 import { createAnecdote } from '../requests'
+import { useNotificationDispatch } from '../context/NotificationContext'
 
 
 const AnecdoteForm = () => {
   const queryClient = useQueryClient()
+  const notificationDispatch = useNotificationDispatch()
 
   const newAnecdoteMutation = useMutation(createAnecdote, {
     onSuccess: (newNote) => {
       const anecdotes = queryClient.getQueryData('anecdotes')
       queryClient.setQueryData('anecdotes', anecdotes.concat(newNote))
+      notificationDispatch({ type: 'set', payload: `Anecdote '${newNote.content}' was created.`})
+    },
+    onError: (error) => {
+      const errorData = error?.response?.data?.error === undefined ? 'server is not responding.' : error.response.data.error
+      notificationDispatch({ type: 'set', payload: `Couldn't save the new anecdote, ${errorData}`})
     }
   })
 
