@@ -1,0 +1,39 @@
+* {
+    font-family: sans-serif;
+    color: white;
+}
+
+body {
+    background-color: black;
+}
+
+input {
+    color: black;
+}
+
+button {
+    background-color: aquamarine;
+    color: rgb(0, 42, 66)
+}
+
+button:hover {
+    background-color: aquamarine;
+    color: rgb(0, 42, 66);
+    transform: scale(1.15);
+    cursor: pointer;
+}
+
+.notification { 
+    background-color: grey;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 25px;
+    width: 50%;
+}
+
+.blog, .expanded-blog {
+    border: 2px solid aquamarine;
+    width: fit-content;
+    padding: 10px;
+}

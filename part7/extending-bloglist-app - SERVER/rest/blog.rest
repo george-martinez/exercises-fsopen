@@ -1,0 +1,28 @@
+GET http://localhost:3003/api/blogs
+content-type: application/json
+
+{}
+
+###
+
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjYzNTA5NzY0ZTAzODY2OTE2NmFmYmViNSIsImlhdCI6MTY2NjIyNjAyMiwiZXhwIjoxNjY2NDg1MjIyfQ.-kHvgVjroa-QjncQWYdxUo-3S1_J5LpqsA3BLWbyaZc
+
+{
+  "title": "New blog title 1",
+  "author": "George",
+  "url": "www.test.com"
+}
+
+###
+
+DELETE http://localhost:3003/api/blogs/635028a04c2aa2ad21163445
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjYzNTA5NzY0ZTAzODY2OTE2NmFmYmViNSIsImlhdCI6MTY2NjIyNjAyMiwiZXhwIjoxNjY2NDg1MjIyfQ.-kHvgVjroa-QjncQWYdxUo-3S1_J5LpqsA3BLWbyaZc
+
+
+###
+
+
+
