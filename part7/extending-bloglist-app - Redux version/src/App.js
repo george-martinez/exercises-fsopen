@@ -1,40 +1,33 @@
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import Blog from './components/Blog'
-import blogService from './services/blogs'
 import LoginForm from './components/LoginForm'
 import Notification from './components/Notification'
 import BlogForm from './components/BlogForm'
 import Togglable from './components/Togglable'
 import './App.css'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
+import { initializeBlogs } from './reducers/blogReducer'
+import { logoutUser } from './reducers/userReducer'
 
 const App = () => {
-	const [blogs, setBlogs] = useState([])
-	const [user, setUser] = useState(null)
+	const dispatch = useDispatch()
+
 	const notificationMessage = useSelector(
 		state => state.notification.notification
 	)
 
-	useEffect(() => {
-		blogService.getAll().then(blogs => setBlogs(blogs))
-	}, [])
+	const user = useSelector(state => state.user)
 
 	useEffect(() => {
-		const loggedUserJSON = window.localStorage.getItem(
-			'loggeduseronblogapp'
-		)
-		if (loggedUserJSON) {
-			const user = JSON.parse(loggedUserJSON)
-			setUser(user)
-			blogService.setToken(user.token)
-		}
-	}, [])
+		dispatch(initializeBlogs())
+	}, [dispatch])
+
+	const blogs = useSelector(state => state.blog)
 
 	const blogFormRef = useRef()
 
 	const handleLogout = () => {
-		window.localStorage.removeItem('loggeduseronblogapp')
-		setUser(null)
+		dispatch(logoutUser())
 	}
 
 	return (
@@ -49,15 +42,11 @@ const App = () => {
 			{notificationMessage !== null ? <Notification /> : null}
 
 			{user === null ? (
-				<LoginForm setUser={setUser} />
+				<LoginForm />
 			) : (
 				<div>
 					<Togglable buttonLabel='New Blog' ref={blogFormRef}>
-						<BlogForm
-							blogs={blogs}
-							setBlogs={setBlogs}
-							blogFormRef={blogFormRef}
-						/>
+						<BlogForm blogFormRef={blogFormRef} />
 					</Togglable>
 				</div>
 			)}
@@ -66,12 +55,7 @@ const App = () => {
 			{blogs
 				.sort((a, b) => b.likes - a.likes)
 				.map(blog => (
-					<Blog
-						key={blog.id}
-						blog={blog}
-						blogs={blogs}
-						setBlogs={setBlogs}
-					/>
+					<Blog key={blog.id} blog={blog} blogs={blogs} />
 				))}
 		</div>
 	)

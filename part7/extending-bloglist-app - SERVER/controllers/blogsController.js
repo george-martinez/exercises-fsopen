@@ -10,6 +10,13 @@ blogRouter.get('/', async (request, response) => {
     response.json(blogs)
 })
 
+blogRouter.get('/:id', async (request, response) => {
+    const id = request.params.id
+    const blog = await Blog.find({ _id:id }).populate('user')
+
+    response.json(blog)
+})
+
 blogRouter.post('/', userExtractor, async (request, response) => {
     const { title, author, url } = request.body
 
@@ -61,7 +68,7 @@ blogRouter.put('/:id', userExtractor, async (request, response) => {
     const user = await User.findById(request.user.id.toString())
     if(!user) return response.status(401).json({ error: 'Invalid or missing user' })
 
-    const id = request.params.id
+    const id = new String(request.params.id)
     const newBlogInfo = request.body
 
     const blogToUpdate = await Blog.findById(id)

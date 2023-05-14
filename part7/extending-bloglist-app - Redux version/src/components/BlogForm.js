@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import blogService from '../services/blogs'
 import { useDispatch } from 'react-redux'
 import { createNotification } from '../reducers/notificationReducer'
+import { createBlog } from '../reducers/blogReducer'
 
-const BlogForm = ({ blogs, setBlogs, blogFormRef }) => {
+const BlogForm = ({ blogFormRef }) => {
 	const [title, setTitle] = useState('')
 	const [author, setAuthor] = useState('')
 	const [url, setUrl] = useState('')
@@ -20,7 +20,7 @@ const BlogForm = ({ blogs, setBlogs, blogFormRef }) => {
 		}
 
 		try {
-			const createdBlog = await blogService.create(newBlog)
+			await dispatch(createBlog(newBlog))
 
 			dispatch(
 				createNotification(
@@ -32,10 +32,10 @@ const BlogForm = ({ blogs, setBlogs, blogFormRef }) => {
 			setTitle('')
 			setAuthor('')
 			setUrl('')
-			setBlogs([...blogs, createdBlog])
 			blogFormRef.current.toggleVisibility()
 		} catch (error) {
-			const message = error?.response?.data?.error
+			const message = error.response.data.error
+			console.error(error)
 
 			dispatch(
 				createNotification(`Error: ${message}`, notificationDuration)

@@ -1,11 +1,10 @@
 import { useState } from 'react'
-import blogService from '../services/blogs'
 import { useDispatch } from 'react-redux'
 import { createNotification } from '../reducers/notificationReducer'
+import { likeBlog, removeBlog } from '../reducers/blogReducer'
 
-const Blog = ({ blog, setBlogs, blogs }) => {
-	let { id, title, url, likes, author } = blog
-	const { update, remove } = blogService
+const Blog = ({ blog, blogs }) => {
+	let { id, title, likes, author } = blog
 
 	const [showComponent, setShowComponent] = useState(false)
 
@@ -18,28 +17,13 @@ const Blog = ({ blog, setBlogs, blogs }) => {
 	}
 
 	const handleAddLike = async () => {
-		const blogToUpdate = {
-			title,
-			url,
-			author,
-			likes: likes + 1,
-		}
-
 		try {
-			const blogsCopy = [...blogs]
-			const index = blogsCopy.findIndex(blogCopy => blogCopy.id === id)
-			blogsCopy[index].likes = likes + 1
-
-			setBlogs(blogsCopy)
-
-			await update(id, blogToUpdate)
+			await dispatch(likeBlog(id))
 		} catch (error) {
+			const message = error.message
 			console.error(error)
 			dispatch(
-				createNotification(
-					`Error: ${error.message}`,
-					notificationDuration
-				)
+				createNotification(`Error: ${message}`, notificationDuration)
 			)
 		}
 	}
@@ -48,18 +32,13 @@ const Blog = ({ blog, setBlogs, blogs }) => {
 		if (!window.confirm(`Remove blog ${title} by ${author}`)) return null
 
 		try {
-			await remove(id)
-			const blogsCopy = blogs.map(arrItem => arrItem)
-			const index = blogsCopy.findIndex(blogCopy => blogCopy.id === id)
-			blogsCopy.splice(index, 1)
-			setBlogs(blogsCopy)
+			await dispatch(removeBlog(id))
 		} catch (error) {
+			const message = error.message
 			console.error(error)
+
 			dispatch(
-				createNotification(
-					`Error: ${error.response.data.error}`,
-					notificationDuration
-				)
+				createNotification(`Error: ${message}`, notificationDuration)
 			)
 		}
 	}

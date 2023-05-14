@@ -30,6 +30,18 @@ const update = (id, newObject) => {
 	return request.then(response => response.data)
 }
 
+const getBlog = id => {
+	const config = {
+		headers: { Authorization: token },
+	}
+
+	const request = axios.get(`${baseUrl}/${id}`, config)
+	return request.then(response => {
+		delete response.data[0].user
+		return response.data[0]
+	})
+}
+
 const remove = id => {
 	const config = {
 		headers: { Authorization: token },
@@ -39,6 +51,6 @@ const remove = id => {
 	return request.then(response => response.data)
 }
 
-const exports = { getAll, create, update, setToken, remove }
+const exports = { getAll, create, update, setToken, remove, getBlog }
 
 export default exports

@@ -1,13 +1,12 @@
 import { useState } from 'react'
-import loginService from '../services/login'
-import Notification from './Notification'
-import PropTypes from 'prop-types'
-import blogService from '../services/blogs'
+import { useDispatch } from 'react-redux'
+import { loginUser } from '../reducers/userReducer'
+import { createNotification } from '../reducers/notificationReducer'
 
-const LoginForm = ({ setUser }) => {
+const LoginForm = () => {
 	const [username, setUsername] = useState('')
 	const [password, setPassword] = useState('')
-	const [errorMessage, setErrorMessage] = useState(null)
+	const dispatch = useDispatch()
 
 	const handleLogin = async event => {
 		event.preventDefault()
@@ -15,23 +14,11 @@ const LoginForm = ({ setUser }) => {
 		console.log('loggin in with', username, password)
 
 		try {
-			const user = await loginService.login({
-				username,
-				password,
-			})
-			setUser(user)
+			await dispatch(loginUser(username, password))
 			setUsername('')
 			setPassword('')
-			window.localStorage.setItem(
-				'loggeduseronblogapp',
-				JSON.stringify(user)
-			)
-			blogService.setToken(user.token)
 		} catch (exception) {
-			setErrorMessage('Wrong credentials')
-			setTimeout(() => {
-				setErrorMessage(null)
-			}, 5000)
+			dispatch(createNotification('Wrong credentials', 5))
 		}
 	}
 
@@ -62,17 +49,9 @@ const LoginForm = ({ setUser }) => {
 				<button type='submit' id='login-button'>
 					login
 				</button>
-
-				{errorMessage !== null ? (
-					<Notification message={errorMessage} />
-				) : null}
 			</form>
 		</div>
 	)
-}
-
-LoginForm.propTypes = {
-	setUser: PropTypes.func.isRequired,
 }
 
 export default LoginForm
