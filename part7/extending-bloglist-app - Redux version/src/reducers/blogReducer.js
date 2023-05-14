@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import blogService from '../services/blogs'
+import { updateUserBlogs } from './userReducer'
 
 const initialState = []
 
@@ -38,7 +39,12 @@ export const { newBlog, quitBlog, setBlogs, newLike } = blogSlice.actions
 export const createBlog = blog => {
 	return async dispatch => {
 		const createdBlog = await blogService.create(blog)
+		console.log(
+			'🚀 ~ file: blogReducer.js:41 ~ createBlog ~ createdBlog:',
+			createdBlog
+		)
 		dispatch(newBlog(createdBlog))
+		dispatch(updateUserBlogs(createdBlog))
 	}
 }
 
