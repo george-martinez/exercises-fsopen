@@ -17,6 +17,21 @@ blogRouter.get('/:id', async (request, response) => {
     response.json(blog)
 })
 
+blogRouter.post('/:id/comments', async (request, response) => {
+    const id = request.params.id
+    const { comment } = request.body
+
+    if(!comment & !id) return response.status(400).json({ error: 'Comment and ID should not be empty' })
+    if(!comment) return response.status(400).json({ error: 'Comment should not be empty' })
+    if(!id) return response.status(400).json({ error: 'ID should not be empty' })
+
+    const blog = await Blog.findById(id).populate('user')
+    blog.comments.push(comment)
+    const savedBlog = await blog.save()
+
+    response.status(201).json(savedBlog)
+})
+
 blogRouter.post('/', userExtractor, async (request, response) => {
     const { title, author, url } = request.body
 
@@ -30,7 +45,8 @@ blogRouter.post('/', userExtractor, async (request, response) => {
         author,
         url,
         likes: request.body.likes || 0,
-        user: user._id
+        user: user._id,
+        comments: []
     })
 
     const addedBlog = await blogToAdd.save()

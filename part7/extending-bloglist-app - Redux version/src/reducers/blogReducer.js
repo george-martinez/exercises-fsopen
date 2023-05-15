@@ -31,18 +31,26 @@ const blogSlice = createSlice({
 		setBlogs(state, action) {
 			return action.payload
 		},
+		newComment(state, action) {
+			const { comment, id } = action.payload
+
+			const blogToChange = state.find(blog => blog.id === id)
+			const changedBlog = {
+				...blogToChange,
+				comments: blogToChange.comments.concat(comment),
+			}
+
+			return state.map(blog => (blog.id !== id ? blog : changedBlog))
+		},
 	},
 })
 
-export const { newBlog, quitBlog, setBlogs, newLike } = blogSlice.actions
+export const { newBlog, quitBlog, setBlogs, newLike, newComment } =
+	blogSlice.actions
 
 export const createBlog = blog => {
 	return async dispatch => {
 		const createdBlog = await blogService.create(blog)
-		console.log(
-			'🚀 ~ file: blogReducer.js:41 ~ createBlog ~ createdBlog:',
-			createdBlog
-		)
 		dispatch(newBlog(createdBlog))
 		dispatch(updateUserBlogs(createdBlog))
 	}
@@ -70,6 +78,13 @@ export const removeBlog = id => {
 	return async dispatch => {
 		await blogService.remove(id)
 		dispatch(quitBlog(id))
+	}
+}
+
+export const commentBlog = (id, comment) => {
+	return async dispatch => {
+		await blogService.addComment(id, comment)
+		dispatch(newComment({ id, comment }))
 	}
 }
 
