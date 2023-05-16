@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { createNotification } from '../reducers/notificationReducer'
 import { createBlog } from '../reducers/blogReducer'
+import { Button } from './StyledComponents'
 
 const BlogForm = ({ blogFormRef }) => {
 	const [title, setTitle] = useState('')
@@ -71,9 +72,14 @@ const BlogForm = ({ blogFormRef }) => {
 						id='new-blog-form-url'
 					/>
 				</p>
-				<button type='submit' id='new-blog-form-create-button'>
+				<Button
+					$primary
+					type='submit'
+					id='new-blog-form-create-button'
+					className='menu-btn'
+				>
 					create
-				</button>
+				</Button>
 			</form>
 		</div>
 	)

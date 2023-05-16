@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { LinkStyled } from './StyledComponents'
 
 const User = ({ user }) => {
 	return (
@@ -13,9 +13,9 @@ const User = ({ user }) => {
 					</tr>
 					<tr>
 						<td>
-							<Link to={`/users/${user.id}`}>
+							<LinkStyled to={`/users/${user.id}`}>
 								{user?.username}
-							</Link>
+							</LinkStyled>
 						</td>
 						<td>{user.blogs.length}</td>
 					</tr>

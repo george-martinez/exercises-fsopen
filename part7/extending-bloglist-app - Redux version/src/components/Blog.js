@@ -1,16 +1,14 @@
-import { Link } from 'react-router-dom'
+import { BlogContainer, LinkStyled } from './StyledComponents'
 
-const Blog = ({ blog, blogs }) => {
+const Blog = ({ blog }) => {
 	return (
-		<div>
-			<div className='blog'>
-				<p>
-					<Link to={`/blogs/${blog?.id}`}>
-						{blog?.title} - by: {blog?.author}
-					</Link>
-				</p>
-			</div>
-		</div>
+		<BlogContainer>
+			<p>
+				<LinkStyled $primary to={`/blogs/${blog?.id}`}>
+					{blog?.title} - by: {blog?.author}
+				</LinkStyled>
+			</p>
+		</BlogContainer>
 	)
 }
 

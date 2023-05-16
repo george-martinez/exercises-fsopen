@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { loginUser } from '../reducers/loginReducer'
 import { createNotification } from '../reducers/notificationReducer'
+import { Button } from './StyledComponents'
 
 const LoginForm = () => {
 	const [username, setUsername] = useState('')
@@ -46,9 +47,9 @@ const LoginForm = () => {
 						onChange={({ target }) => setPassword(target.value)}
 					/>
 				</div>
-				<button type='submit' id='login-button'>
+				<Button $primary type='submit' id='login-button'>
 					login
-				</button>
+				</Button>
 			</form>
 		</div>
 	)

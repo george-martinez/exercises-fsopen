@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { NotificationContainer } from './StyledComponents'
 
 const Notification = () => {
 	const { notification, timerId } = useSelector(state => state.notification)
@@ -9,7 +10,7 @@ const Notification = () => {
 		return () => clearTimeout(timerId)
 	}, [notification, timerId, dispatch])
 
-	return <div className='notification'>{notification}</div>
+	return <NotificationContainer>{notification}</NotificationContainer>
 }
 
 export default Notification

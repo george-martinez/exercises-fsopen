@@ -1,6 +1,6 @@
 import { useDispatch } from 'react-redux'
 import { logoutUser } from '../reducers/loginReducer'
-import { Link } from 'react-router-dom'
+import { Button, ContainerSpacedBetween, LinkStyled } from './StyledComponents'
 
 const Menu = ({ userLogged }) => {
 	const dispatch = useDispatch()
@@ -10,18 +10,24 @@ const Menu = ({ userLogged }) => {
 	}
 
 	return (
-		<div>
-			<Link to={'/'}>Blogs </Link>
-			<Link to={'/users'}>Users </Link>
+		<ContainerSpacedBetween>
+			<div>
+				<LinkStyled to={'/'}>Blogs</LinkStyled>
+				<LinkStyled to={'/users'}>Users</LinkStyled>
+			</div>
 			{userLogged ? (
-				<p>
+				<div>
 					{userLogged.username} is logged in {'=>'}{' '}
-					<button onClick={() => handleLogout()}>logout</button>
-				</p>
+					<Button $primary onClick={() => handleLogout()}>
+						logout
+					</Button>
+				</div>
 			) : (
-				<Link to={'/'}>Login</Link>
+				<div>
+					<LinkStyled to={'/'}>Login</LinkStyled>
+				</div>
 			)}
-		</div>
+		</ContainerSpacedBetween>
 	)
 }
 
