@@ -33,7 +33,7 @@ loginRouter.post('/', async (request, response) => {
 
     const token = jwt.sign(userForToken, JWT_SECRET, { expiresIn: JWT_DURATION })
 
-    response.status(200).send({
+    response.status(200).json({
         token,
         username: user.username,
         name: user.name

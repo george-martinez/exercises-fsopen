@@ -1,10 +1,34 @@
 import { useState } from 'react'
-import blogService from '../services/blogs'
+import { Button } from './StyledComponents'
+import { useMutation, useQueryClient } from 'react-query'
+import blogsFn from '../services/blogs'
+import getUsersFn from '../services/user'
+import {
+	useNotificationDispatch,
+	useNotificationValue,
+} from '../context/NotificationContext'
 
-const BlogForm = ({ setNotificationMessage, blogs, setBlogs, blogFormRef }) => {
+const BlogForm = ({ blogFormRef }) => {
 	const [title, setTitle] = useState('')
 	const [author, setAuthor] = useState('')
 	const [url, setUrl] = useState('')
+	const notificationDuration = 5
+
+	const notificationDispatch = useNotificationDispatch()
+
+	const queryClient = useQueryClient()
+
+	const addBlogMutation = useMutation(blogsFn.create, {
+		onSuccess: () => {
+			queryClient.invalidateQueries('blogs')
+		},
+	})
+
+	const refetchUserBlogsMutation = useMutation(getUsersFn.getUsers, {
+		onSuccess: () => {
+			queryClient.invalidateQueries('users')
+		},
+	})
 
 	const handleAddBlog = async event => {
 		event.preventDefault()
@@ -16,28 +40,32 @@ const BlogForm = ({ setNotificationMessage, blogs, setBlogs, blogFormRef }) => {
 		}
 
 		try {
-			const createdBlog = await blogService.create(newBlog)
+			addBlogMutation.mutate(newBlog)
+			refetchUserBlogsMutation.mutate()
 
-			setNotificationMessage(
-				`A new blog ${title} by ${author} has been added`
-			)
-			setTimeout(() => {
-				setNotificationMessage(null)
-			}, 5000)
+			notificationDispatch({
+				type: 'newNotification',
+				payload: {
+					notification: `A new blog ${title} by ${author} has been added`,
+					notificationDuration,
+				},
+			})
 
 			setTitle('')
 			setAuthor('')
 			setUrl('')
-			setBlogs([...blogs, createdBlog])
 			blogFormRef.current.toggleVisibility()
 		} catch (error) {
-			const message = error?.response?.data?.error
+			const message = error.response.data.error
+			console.error(error)
 
-			setNotificationMessage(`${message}`)
-
-			setTimeout(() => {
-				setNotificationMessage(null)
-			}, 5000)
+			notificationDispatch({
+				type: 'newNotification',
+				payload: {
+					notification: `Error: ${message}`,
+					notificationDuration,
+				},
+			})
 		}
 	}
 
@@ -69,9 +97,14 @@ const BlogForm = ({ setNotificationMessage, blogs, setBlogs, blogFormRef }) => {
 						id='new-blog-form-url'
 					/>
 				</p>
-				<button type='submit' id='new-blog-form-create-button'>
+				<Button
+					$primary
+					type='submit'
+					id='new-blog-form-create-button'
+					className='menu-btn'
+				>
 					create
-				</button>
+				</Button>
 			</form>
 		</div>
 	)

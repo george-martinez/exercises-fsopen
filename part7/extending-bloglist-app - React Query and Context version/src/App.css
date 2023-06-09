@@ -1,39 +1,12 @@
 * {
-    font-family: sans-serif;
-    color: white;
+    font-family: Roboto, sans-serif;
+    color: rgb(18, 27, 27);
+    box-sizing: border-box;
 }
 
 body {
     background-color: black;
-}
-
-input {
-    color: black;
-}
-
-button {
-    background-color: aquamarine;
-    color: rgb(0, 42, 66)
-}
-
-button:hover {
-    background-color: aquamarine;
-    color: rgb(0, 42, 66);
-    transform: scale(1.15);
-    cursor: pointer;
-}
-
-.notification { 
-    background-color: grey;
-    padding: 10px;
-    border-radius: 5px;
-    text-align: center;
-    font-size: 25px;
-    width: 50%;
-}
-
-.blog, .expanded-blog {
-    border: 2px solid aquamarine;
-    width: fit-content;
-    padding: 10px;
+    padding: 20px;
+    background-color: #8EC5FC;
+    background-image: linear-gradient(62deg, #8EC5FC 0%, #E0C3FC 100%);
 }

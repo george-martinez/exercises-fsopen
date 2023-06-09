@@ -42,7 +42,7 @@ blogSchema.pre('deleteOne', { document: false, query: true }, async function () 
 
     const user = await User.findById(userId)
 
-    const index = user.blogs.indexOf(userId)
+    const index = user.blogs.indexOf(blogToDelete._id)
 
     user.blogs.splice(index, 1)
 

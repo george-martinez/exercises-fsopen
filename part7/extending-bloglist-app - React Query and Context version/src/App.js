@@ -1,79 +1,86 @@
-import { useState, useEffect, useRef } from 'react'
-import Blog from './components/Blog'
-import blogService from './services/blogs'
-import LoginForm from './components/LoginForm'
-import Notification from './components/Notification'
-import BlogForm from './components/BlogForm'
-import Togglable from './components/Togglable'
 import './App.css'
+import { useRef, useState } from 'react'
+import { Route, Routes, useMatch } from 'react-router-dom'
+import Notification from './components/Notification'
+import BlogDetail from './components/BlogDetail'
+import Menu from './components/Menu'
+import UserDetails from './components/UserDetails'
+import UserList from './components/UserList'
+import Main from './components/Main'
+import { useQuery } from 'react-query'
+import blogsFn from './services/blogs'
+import getUsersFn from './services/user'
+import { setInitialState } from './reducers/loginReducer'
 
 const App = () => {
-	const [blogs, setBlogs] = useState([])
-	const [user, setUser] = useState(null)
-	const [notificationMessage, setNotificationMessage] = useState(null)
+	const [userIsLoggedIn, setUserIsLoggedIn] = useState(
+		setInitialState().isLoggedIn
+	)
 
-	useEffect(() => {
-		blogService.getAll().then(blogs => setBlogs(blogs))
-	}, [])
+	let users = []
+	let blogs = []
 
-	useEffect(() => {
-		const loggedUserJSON = window.localStorage.getItem(
-			'loggeduseronblogapp'
-		)
-		if (loggedUserJSON) {
-			const user = JSON.parse(loggedUserJSON)
-			setUser(user)
-			blogService.setToken(user.token)
-		}
-	}, [])
+	const blogQuery = useQuery('blogs', blogsFn.getAll, {
+		refetchOnWindowFocus: false,
+		retry: 1,
+	})
+
+	const userQuery = useQuery('users', getUsersFn.getUsers, {
+		refetchOnWindowFocus: false,
+		retry: 1,
+	})
+
+	blogs = blogQuery.data
+	users = userQuery.data
+
+	const userMatch = useMatch('/users/:id')
+	const userMatched = userMatch
+		? users.find(u => u.id === userMatch.params.id)
+		: null
+
+	const blogMatch = useMatch('/blogs/:id')
+	const blogMatched = blogMatch
+		? blogs.find(b => b.id === blogMatch.params.id)
+		: null
 
 	const blogFormRef = useRef()
 
-	const handleLogout = () => {
-		window.localStorage.removeItem('loggeduseronblogapp')
-		setUser(null)
+	if (userQuery.isLoading || blogQuery.isLoading) {
+		return <div>loading data from server...</div>
 	}
 
 	return (
 		<div>
-			{user === null ? null : (
-				<p>
-					{user.username} is logged in {'=>'}{' '}
-					<button onClick={() => handleLogout()}>logout</button>
-				</p>
-			)}
+			<Menu
+				userIsLoggedIn={userIsLoggedIn}
+				setUserIsLoggedIn={setUserIsLoggedIn}
+			/>
 
-			{notificationMessage !== null ? (
-				<Notification message={notificationMessage} />
-			) : null}
+			<Notification />
 
-			{user === null ? (
-				<LoginForm setUser={setUser} />
-			) : (
-				<div>
-					<Togglable buttonLabel='New Blog' ref={blogFormRef}>
-						<BlogForm
-							blogs={blogs}
-							setBlogs={setBlogs}
-							setNotificationMessage={setNotificationMessage}
+			<Routes>
+				<Route
+					exact
+					path='/'
+					element={
+						<Main
+							userIsLoggedIn={userIsLoggedIn}
+							setUserIsLoggedIn={setUserIsLoggedIn}
 							blogFormRef={blogFormRef}
+							blogs={blogs}
 						/>
-					</Togglable>
-				</div>
-			)}
-
-			<h2>Blogs</h2>
-			{blogs
-				.sort((a, b) => b.likes - a.likes)
-				.map(blog => (
-					<Blog
-						key={blog.id}
-						blog={blog}
-						blogs={blogs}
-						setBlogs={setBlogs}
-						setNotificationMessage={setNotificationMessage}
-					/>
-				))}
+					}
+				/>
+				<Route path='/users' element={<UserList users={users} />} />
+				<Route
+					path='/users/:id'
+					element={<UserDetails user={userMatched} />}
+				/>
+				<Route
+					path='/blogs/:id'
+					element={<BlogDetail blog={blogMatched} />}
+				/>
+			</Routes>
 		</div>
 	)
 }

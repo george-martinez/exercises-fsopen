@@ -77,7 +77,7 @@ blogRouter.delete('/:id', userExtractor, async (request, response) => {
 
     await Blog.deleteOne({ _id: id })
 
-    response.status(204).send()
+    response.status(200).json(blogToDelete)
 })
 
 blogRouter.put('/:id', userExtractor, async (request, response) => {

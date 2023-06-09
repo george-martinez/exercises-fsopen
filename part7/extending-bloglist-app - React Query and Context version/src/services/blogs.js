@@ -12,6 +12,15 @@ const getAll = () => {
 	return request.then(response => response.data)
 }
 
+const addComment = blogWithNewComment => {
+	const { id, comments } = blogWithNewComment
+	const request = axios.post(`${baseUrl}/${id}/comments`, {
+		comment: comments[comments.length - 1],
+	})
+
+	return request.then(response => response.data)
+}
+
 const create = async newObject => {
 	const config = {
 		headers: { Authorization: token },
@@ -21,13 +30,33 @@ const create = async newObject => {
 	return response.data
 }
 
-const update = (id, newObject) => {
+const update = newObject => {
 	const config = {
 		headers: { Authorization: token },
 	}
 
-	const request = axios.put(`${baseUrl}/${id}`, newObject, config)
+	const newObjectCopy = { ...newObject }
+	delete newObjectCopy.id
+	delete newObjectCopy.user
+
+	const request = axios.put(
+		`${baseUrl}/${newObject.id}`,
+		newObjectCopy,
+		config
+	)
 	return request.then(response => response.data)
+}
+
+const getBlog = id => {
+	const config = {
+		headers: { Authorization: token },
+	}
+
+	const request = axios.get(`${baseUrl}/${id}`, config)
+	return request.then(response => {
+		delete response.data[0].user
+		return response.data[0]
+	})
 }
 
 const remove = id => {
@@ -39,6 +68,14 @@ const remove = id => {
 	return request.then(response => response.data)
 }
 
-const exports = { getAll, create, update, setToken, remove }
+const blogsFn = {
+	getAll,
+	create,
+	update,
+	setToken,
+	remove,
+	getBlog,
+	addComment,
+}
 
-export default exports
+export default blogsFn

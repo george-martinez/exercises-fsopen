@@ -1,37 +1,44 @@
 import { useState } from 'react'
-import loginService from '../services/login'
-import Notification from './Notification'
-import PropTypes from 'prop-types'
-import blogService from '../services/blogs'
+import { Button } from './StyledComponents'
+import { useLoginDispatch } from '../context/LoginContext'
+import { useNotificationDispatch } from '../context/NotificationContext'
+import { login } from '../services/login'
 
-const LoginForm = ({ setUser }) => {
+const LoginForm = ({ setUserIsLoggedIn }) => {
 	const [username, setUsername] = useState('')
 	const [password, setPassword] = useState('')
-	const [errorMessage, setErrorMessage] = useState(null)
+	const loginDispatch = useLoginDispatch()
+	const notificationDuration = 5
+
+	const notificationDispatch = useNotificationDispatch()
 
 	const handleLogin = async event => {
 		event.preventDefault()
-
-		console.log('loggin in with', username, password)
-
 		try {
-			const user = await loginService.login({
+			const loggedAt = JSON.stringify(new Date())
+
+			const loggedUser = await login({
 				username,
 				password,
 			})
-			setUser(user)
+
+			loginDispatch({
+				type: 'loginUser',
+				payload: { ...loggedUser, loggedAt },
+			})
+
+			setUserIsLoggedIn(true)
+
 			setUsername('')
 			setPassword('')
-			window.localStorage.setItem(
-				'loggeduseronblogapp',
-				JSON.stringify(user)
-			)
-			blogService.setToken(user.token)
-		} catch (exception) {
-			setErrorMessage('Wrong credentials')
-			setTimeout(() => {
-				setErrorMessage(null)
-			}, 5000)
+		} catch (error) {
+			notificationDispatch({
+				type: 'newNotification',
+				payload: {
+					notification: `Wrong credentials`,
+					notificationDuration,
+				},
+			})
 		}
 	}
 
@@ -59,20 +66,12 @@ const LoginForm = ({ setUser }) => {
 						onChange={({ target }) => setPassword(target.value)}
 					/>
 				</div>
-				<button type='submit' id='login-button'>
+				<Button $primary type='submit' id='login-button'>
 					login
-				</button>
-
-				{errorMessage !== null ? (
-					<Notification message={errorMessage} />
-				) : null}
+				</Button>
 			</form>
 		</div>
 	)
-}
-
-LoginForm.propTypes = {
-	setUser: PropTypes.func.isRequired,
 }
 
 export default LoginForm
