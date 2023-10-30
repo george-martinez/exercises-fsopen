@@ -4,6 +4,7 @@
   "main": "library-backend.js",
   "scripts": {
     "dev": "npx nodemon library-backend.js",
+    "start": "node library-backend.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
