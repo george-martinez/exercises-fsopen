@@ -1,0 +1,23 @@
+{
+  "name": "8.1-to-8.7",
+  "version": "1.0.0",
+  "main": "library-backend.js",
+  "scripts": {
+    "dev": "npx nodemon library-backend.js",
+    "start": "node library-backend.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@apollo/server": "^4.9.4",
+    "dotenv": "^16.3.1",
+    "graphql": "^16.8.1",
+    "mongoose": "^8.0.0",
+    "mongoose-unique-validator": "^4.0.0",
+    "nodemon": "^3.0.1",
+    "uuid": "^9.0.1"
+  }
+}
