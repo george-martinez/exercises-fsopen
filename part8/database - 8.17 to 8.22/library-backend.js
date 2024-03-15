@@ -62,13 +62,13 @@ const resolvers = {
   Mutation: {
     addBook: async (root, args, { currentUser }) => {
       if(!currentUser){
-        throw GraphQLError('Not authenticated', {
+        throw new GraphQLError('Not authenticated', {
           extensions: {
             code: 'FORBIDDEN'
           }
         })
       }
-
+      
       const authorDB = await Author.findOne({ name: args.author })
       const bookToAdd = new Book({ ...args })
 
@@ -88,9 +88,10 @@ const resolvers = {
       } else{
         bookToAdd.author = authorDB._id
       }
-
-      const addedBook = null
-
+      
+      let addedBook = null
+      console.log("🚀 ~ file: library-backend.js:90 ~ addBook: ~ bookToAdd:", bookToAdd)
+      
       try {
         addedBook = await bookToAdd.save()
       } catch (error) {
@@ -108,7 +109,7 @@ const resolvers = {
     },
     editAuthor: async (root, args, { currentUser }) => {
       if(!currentUser){
-        throw GraphQLError('Not authenticated', {
+        throw new GraphQLError('Not authenticated', {
           extensions: {
             code: 'FORBIDDEN'
           }
@@ -177,10 +178,11 @@ const resolvers = {
 
       const userForToken = {
         username: user.username,
+        favoriteGenre: user.favoriteGenre,
         id: user.id
       }
 
-      return { value: jwt.sign(userForToken, process.env.JWT_SECRET) }
+      return { token: {value: jwt.sign(userForToken, process.env.JWT_SECRET)}, user: userForToken }
     }
   }
 }

@@ -32,6 +32,11 @@ const typeDefs = `
     value: String!
   }
 
+  type LoggedUser {
+    token: Token
+    user: User
+  }
+
   type Mutation {
     addBook(
       title: String!
@@ -50,7 +55,7 @@ const typeDefs = `
     login(
       username: String!
       password: String!
-    ): Token
+    ): LoggedUser
   }
 `
 
