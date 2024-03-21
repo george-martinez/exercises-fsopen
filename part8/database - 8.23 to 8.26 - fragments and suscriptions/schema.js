@@ -1,66 +1,39 @@
-const typeDefs = `
-  type Author {
-    name: String!
-    born: Int
-    id: ID!
-    bookCount: Int!
-  }
+const { merge } = require('lodash')
+const { makeExecutableSchema } = require('@graphql-tools/schema')
 
-  type Book {
-    title: String!
-    published: Int!
-    author: Author!
-    id: ID!
-    genres: [String!]!
-  }
+const Author = require('./schema/authorSchema').typeDef
+const Book = require('./schema/bookSchema').typeDef
+const LoggedUser = require('./schema/loggedUserSchema').typeDef
+const User = require('./schema/userSchema').typeDef
+const Token = require('./schema/tokenSchema').typeDef
 
+const authorResolvers = require('./schema/authorSchema').resolvers
+const bookResolvers = require('./schema/bookSchema').resolvers
+const loggedUserResolvers = require('./schema/loggedUserSchema').resolvers
+const userResolvers = require('./schema/userSchema').resolvers
+const tokenResolvers = require('./schema/tokenSchema').resolvers
+
+const Query = `
   type Query {
-    bookCount: Int!
-    authorCount: Int!
-    allBooks(author: String, genre: String): [Book!]!
-    allAuthors: [Author!]!
-    me: User
-  }
-
-  type User {
-    username: String!
-    favoriteGenre: String!
-    id: ID!
-  }
-  
-  type Token {
-    value: String!
-  }
-
-  type LoggedUser {
-    token: Token
-    user: User
-  }
-
-  type Mutation {
-    addBook(
-      title: String!
-      author: String!
-      published: Int!
-      genres: [String!]!
-    ): Book
-    editAuthor(
-      name: String!
-      setBornTo: Int!
-    ): Author
-    createUser(
-      username: String!
-      favoriteGenre: String!
-    ): User
-    login(
-      username: String!
-      password: String!
-    ): LoggedUser
-  }
-
-  type Subscription {
-    bookAdded: Book!
+    _empty: String
   }
 `
 
-module.exports = typeDefs
+const Mutation = `
+  type Mutation {
+    _empty: String
+  }
+`
+
+const Subscription = `
+  type Subscription {
+    _empty: String
+  }
+`
+
+const schema = makeExecutableSchema({ 
+  typeDefs: [ Query, Mutation, Subscription, Author, Book, User, LoggedUser, Token ], 
+  resolvers: merge(authorResolvers, bookResolvers, loggedUserResolvers, tokenResolvers, userResolvers)
+})
+
+module.exports = schema

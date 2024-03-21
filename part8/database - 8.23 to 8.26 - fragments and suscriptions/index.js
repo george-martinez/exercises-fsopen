@@ -1,7 +1,6 @@
 const { ApolloServer } = require('@apollo/server')
 const { ApolloServerPluginDrainHttpServer } = require('@apollo/server/plugin/drainHttpServer')
 const { expressMiddleware } = require('@apollo/server/express4')
-const { makeExecutableSchema } = require('@graphql-tools/schema')
 
 const { WebSocketServer } = require('ws')
 const { useServer } = require('graphql-ws/lib/use/ws')
@@ -17,8 +16,7 @@ mongoose.set('debug', true);
 
 const User = require('./models/userModel')
 
-const typeDefs = require('./schema')
-const resolvers = require('./resolvers')
+const schema = require('./schema')
 
 require('dotenv').config()
 
@@ -43,7 +41,6 @@ const start = async () => {
     path: '/',
   })
   
-  const schema = makeExecutableSchema({ typeDefs, resolvers })
   const serverCleanup = useServer({ schema }, wsServer);
 
   const server = new ApolloServer({
