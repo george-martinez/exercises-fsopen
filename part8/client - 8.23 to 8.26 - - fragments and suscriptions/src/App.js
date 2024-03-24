@@ -40,6 +40,19 @@ const App = () => {
   const client = useApolloClient()
   const navigate = useNavigate()
   const userResult = useQuery(ME)
+  const [genreFilter, setGenreFilter] = useState('')
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data, client }) => {
+      const addedBook = data.data.bookAdded
+      window.alert(`Book ${addedBook.title} added`)
+      updateCache(client.cache, { query: BOOK_BY_GENRE, variables: {genre: ''} }, addedBook)
+    }
+  })
+
+  const booksResult = useQuery(BOOK_BY_GENRE, {
+    variables: { genre: genreFilter },
+  })
   
   useEffect(() => {
     if(userResult?.data?.me?.username){
@@ -49,12 +62,6 @@ const App = () => {
   
   const allAuthorsResult = useQuery(ALL_AUTHORS)
 
-  useSubscription(BOOK_ADDED, {
-    onData: ({ data, client }) => {
-      const addedBook = data.data.bookAdded
-      updateCache(client.cache, { query: BOOK_BY_GENRE, variables: {genre: ''} }, addedBook)
-    }
-  })
   
   if(allAuthorsResult.loading) {
     return <div>loading...</div>
@@ -89,7 +96,7 @@ const App = () => {
       <Routes>
         <Route path='/' element={token ? `Welcome to the library ${user.username}`: 'Welcome to the library. Login if you want to add a book.'}/>
         <Route path='/authors' element={<Authors setError={setErrorMessage}/>}/>
-        <Route path='/books' element={<Books />}/>
+        <Route path='/books' element={<Books booksResult={booksResult} setGenreFilter={setGenreFilter}/>}/>
         <Route path='/recommendations' element={<Recommendations user={user} />}/>
         <Route path='/add' element={<NewBook setError={setErrorMessage} />}/>
         <Route path='/login' element={<LoginForm setToken={setToken} setError={setErrorMessage} setUser={setUser} />}/>

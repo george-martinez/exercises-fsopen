@@ -27,7 +27,6 @@ const resolvers = {
     Query: {
         authorCount: async () => Author.countDocuments(),
         allAuthors: async () => Author.find({}),
-  
     },
     Mutation: {
         editAuthor: async (root, args, { currentUser }) => {
@@ -77,8 +76,7 @@ const resolvers = {
     },
     Author: {
         bookCount: async (root) => {
-          const author = await Author.findOne({ name: root.name })
-          return Book.countDocuments({ author })
+          return root.books.length
         }
     },
 }

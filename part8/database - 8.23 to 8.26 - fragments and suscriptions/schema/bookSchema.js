@@ -16,11 +16,11 @@ const typeDef = `
             author: String!
             published: Int!
             genres: [String!]!
-          ): Book
+        ): Book
     }
 
     extend type Subscription {
-        bookAdded: Book!
+        bookAdded: Book
     }
 
     type Book {
@@ -72,6 +72,7 @@ const resolvers = {
             if(!authorDB){
               const newAuthor = new Author({ name: args.author })
               bookToAdd.author = newAuthor._id
+              newAuthor.books = newAuthor.books.concat(bookToAdd._id)
               try {
                 await newAuthor.save()
               } catch (error) {
@@ -84,10 +85,11 @@ const resolvers = {
               }
             } else{
               bookToAdd.author = authorDB._id
+              authorDB.books = authorDB.books.concat(bookToAdd._id)
+              await authorDB.save()
             }
             
             let addedBook = null
-            console.log("🚀 ~ file: library-backend.js:90 ~ addBook: ~ bookToAdd:", bookToAdd)
             
             try {
               addedBook = await bookToAdd.save()
@@ -100,15 +102,17 @@ const resolvers = {
                 }
               })
             }
+
+            let populatedBook = await addedBook.populate("author")
             
-            pubsub.publish('BOOK_ADDED', { bookAdded: bookToAdd })
+            pubsub.publish('BOOK_ADDED', { bookAdded: populatedBook })
             
-            return addedBook.populate("author")
+            return populatedBook
           },
     },
     Subscription: {
         bookAdded: {
-            subscribe: () => pubsub.asyncIterator('BOOK_ADDED')
+            subscribe: () => pubsub.asyncIterator(['BOOK_ADDED']),
         }
     }
 }

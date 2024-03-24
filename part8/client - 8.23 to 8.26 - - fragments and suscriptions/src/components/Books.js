@@ -1,22 +1,15 @@
-import { useQuery } from "@apollo/client"
-import { BOOK_BY_GENRE } from "../graphql/queries"
 import { useEffect, useState } from "react"
 
-const Books = () => {
-  const [genreFilter, setGenreFilter] = useState('')
+const Books = ({ booksResult, setGenreFilter }) => {
   const [books, setBooks] = useState([])
 
-  const result = useQuery(BOOK_BY_GENRE, {
-    variables: { genre: genreFilter },
-  })
-
   useEffect(() => {
-    if(result.data) {
-      setBooks(result.data.allBooks)
+    if(booksResult?.data) {
+      setBooks(booksResult.data.allBooks)
     }
-  }, [result?.data])
+  }, [booksResult?.data])
 
-  if(result.loading && !result?.data) {
+  if(booksResult?.loading && !booksResult?.data) {
     return <div>loading...</div>
   }
 
