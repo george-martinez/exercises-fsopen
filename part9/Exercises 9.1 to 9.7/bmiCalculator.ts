@@ -5,9 +5,11 @@ interface ArgumentValues {
     value2: number,
 }
 
+
 const parseArguments = (args: string[]): ArgumentValues => {
     if (args.length < 3) throw new Error('Not enough arguments');
     if (args.length > 4) throw new Error('Too many arguments');
+    
 
     if (isNotNumber(args[2]) || isNotNumber(args[3])) {
         throw new Error('Provided values were not numbers!');
@@ -37,14 +39,36 @@ const calculateBmi = (height: number, weight: number): string => {
     return text;
 }
 
-try {
-    const { value1, value2 } = parseArguments(process.argv);
-    const result = calculateBmi(value1, value2);
-    console.log(result)
-  } catch (error: unknown) {
+const bmiCalculatorCLI = () => {
+    try {
+        const { value1, value2 } = parseArguments(process.argv)
+        const result = calculateBmi(value1, value2);
+        console.log(result)
+    } catch (error: unknown) {
         let errorMessage = 'Something bad happened.'
         if (error instanceof Error) {
-        errorMessage += ' Error: ' + error.message;
+            errorMessage += ' Error: ' + error.message;
+        }
+        console.log(errorMessage);
     }
-    console.log(errorMessage);
 }
+
+const bmiCalculator = (height: number, weight: number) => {
+    try {
+        const result = calculateBmi(height, weight);
+        return result
+    } catch (error: unknown) {
+        let errorMessage = 'Something bad happened.'
+        if (error instanceof Error) {
+            errorMessage += ' Error: ' + error.message;
+        }
+        return errorMessage
+    }
+}
+
+if(process.argv.length > 2) {
+    console.log('Executing CLI Bmi calculator.')
+    bmiCalculatorCLI
+}
+
+export default bmiCalculator
