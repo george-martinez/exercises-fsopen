@@ -3,5 +3,5 @@ interface TotalProps {
 }
 
 export const Total = (props: TotalProps) => {
-    return <p>{props.totalExercises}</p>
+    return <p>Number of exercises: {props.totalExercises}</p>
 }
