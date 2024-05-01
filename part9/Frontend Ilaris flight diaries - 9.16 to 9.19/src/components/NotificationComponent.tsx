@@ -1,4 +1,4 @@
-export const NotificationComponent = ({ message }: {message: string}) => {
+export const NotificationComponent = ({ message }: { message: string }) => {
     return(
         <div>
             <p>{message}</p>

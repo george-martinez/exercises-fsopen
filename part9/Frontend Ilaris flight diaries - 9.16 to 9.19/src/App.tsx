@@ -5,11 +5,11 @@ import diariesService from './services/diariesService';
 import { DiaryEntry } from './types';
 import { Diaries } from './components/Diaries';
 import { DiaryForm } from './components/DiaryForm';
+import { useNotification } from './hooks/useNotification';
 
 function App() {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [ notification, setNotification ] = useState<string>('');
   const [ diaries, setDiaries ] = useState<DiaryEntry[]>([]);
+  const [ notification, setNotification ] = useNotification();
   
   useEffect(() => {
     const fetchDiariesList = async () => {
