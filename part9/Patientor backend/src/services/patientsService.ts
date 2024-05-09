@@ -4,13 +4,24 @@ import { v1 as uuid } from 'uuid';
 import { Patient, PatientWithoutSsn, newPatientEntry } from '../types';
 
 const getEntries = (): PatientWithoutSsn[] => {
-	return patients.map(({ id, name, dateOfBirth, gender, occupation }) => ({
+	return patients.map(({ id, name, dateOfBirth, gender, occupation, entries }) => ({
 		id,
 		name,
 		dateOfBirth,
 		gender,
-		occupation
+		occupation, 
+		entries
 	}));
+};
+
+const getPatient = (id: string): Patient => {
+	const filteredPatient = patients.find((patient) => patient.id === id);
+
+	if(!filteredPatient || typeof filteredPatient !== 'object'){
+		throw new Error('Error getting the info.');
+	}
+
+	return (filteredPatient);
 };
 
 const addPatient = (entry: newPatientEntry): Patient => {
@@ -28,5 +39,6 @@ const addPatient = (entry: newPatientEntry): Patient => {
 
 export default {
 	getEntries,
-	addPatient
+	addPatient,
+	getPatient
 };
