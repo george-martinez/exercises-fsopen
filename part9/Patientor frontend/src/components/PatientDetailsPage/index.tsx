@@ -5,6 +5,7 @@ import { Box, Typography, TableCell, TableRow, Table, TableBody } from '@mui/mat
 
 
 import patientService from '../../services/patients';
+import EntryDetails from '../EntryDetails.tsx';
 
 const PatientDetailsPage = ({ diagnosesList }: {diagnosesList: Diagnoses[]}) => {
   const { id } = useParams();
@@ -23,7 +24,6 @@ const PatientDetailsPage = ({ diagnosesList }: {diagnosesList: Diagnoses[]}) => 
 
     void getPatient();
   }, [id]);
-
 
   return (
     <div>
@@ -48,24 +48,13 @@ const PatientDetailsPage = ({ diagnosesList }: {diagnosesList: Diagnoses[]}) => 
             <TableCell><strong>Occupation:</strong></TableCell>
             <TableCell>{patient?.occupation}</TableCell>      
           </TableRow>
-          <Box>
-          <Typography variant="h6" margin={'15px'}>Entries:</Typography>
-          </Box>
-          {patient?.entries.map((patientEntry, index) => {
-            return(
-              <TableRow>
-                <TableCell><b>Entry #{index + 1}:</b></TableCell>      
-                <TableCell><b>Date: </b>{patientEntry.date}</TableCell>      
-                <TableCell><b>Description: </b>{patientEntry.description}</TableCell>      
-                <TableCell><b>Diagnoses:</b><ul>
-                    {patientEntry?.diagnosisCodes?.map(diagnose => <li>{diagnose} {diagnosesList.find(d => d.code === diagnose)?.name}</li>)}
-                  </ul>
-                  </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
+          </TableBody>
       </Table>
+      <Box>
+        <Typography variant="h6" margin={'15px'}>Entries:</Typography>
+      </Box>
+      
+      <EntryDetails entries={patient?.entries} diagnosesList={diagnosesList}></EntryDetails>;
     </div>
   );
 };

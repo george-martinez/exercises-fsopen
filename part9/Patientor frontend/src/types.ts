@@ -20,7 +20,7 @@ export interface Patient {
   entries: Entry[]
 }
 
-enum EntryTypes {
+export enum EntryTypes {
   Hospital = 'Hospital',
   OccupationalHealthcare = 'OccupationalHealthcare',
   HealthCheck = 'HealthCheck'
@@ -35,10 +35,10 @@ interface BaseEntry {
 }
 
 export enum HealthCheckRating {
-'Healthy' = 0,
-'LowRisk' = 1,
-'HighRisk' = 2,
-'CriticalRisk' = 3
+  'Healthy' = 0,
+  'LowRisk' = 1,
+  'HighRisk' = 2,
+  'CriticalRisk' = 3
 }
 
 interface Discharge {
@@ -52,17 +52,17 @@ interface SickLeaveParam {
   endDate: string
 }
 
-interface HealthCheckEntry extends BaseEntry {
-type: EntryTypes.HealthCheck
-healthCheckRating: HealthCheckRating
+export interface HealthCheckEntry extends BaseEntry {
+  type: EntryTypes.HealthCheck
+  healthCheckRating: HealthCheckRating
 }
 
-interface HospitalEntry extends BaseEntry {
+export interface HospitalEntry extends BaseEntry {
   type: EntryTypes.Hospital
   discharge: Discharge
 }
 
-interface OccupationalHealthcareEntry extends BaseEntry {
+export interface OccupationalHealthcareEntry extends BaseEntry {
   type: EntryTypes.OccupationalHealthcare
   employerName: string
   sickLeave?: SickLeaveParam
