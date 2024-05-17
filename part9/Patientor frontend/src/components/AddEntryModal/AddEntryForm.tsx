@@ -2,35 +2,36 @@ import { useState, SyntheticEvent } from "react";
 
 import {  TextField, InputLabel, MenuItem, Select, Grid, Button, SelectChangeEvent } from '@mui/material';
 
-import { EntryWithoutId, Diagnoses, EntryTypes } from "../../types";
+import { EntryWithoutId, Diagnoses, EntryTypes, HealthCheckRating } from "../../types";
+import DiagnoseCodesSelect from "./DiagnoseCodesSelect";
 
 interface Props {
   onCancel: () => void;
   onSubmit: (values: EntryWithoutId) => void;
 }
 
-interface TypeOption{
+interface TypeOption {
     value: EntryTypes;
     label: string;
-  }
+}
 
-const handleAddDiagnosisCode = (newCode: string): Array<Diagnoses['code']> => {
-  const codes = newCode.trim().split(',');
+interface HealthCheckRatingOption {
+  value: HealthCheckRating,
+  label: string
+}
 
-  return codes;
-};
 
 const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [specialist, setSpecialist] = useState('');
-  //const [diagnosisCodes, setDiagnosisCodes] = useState<Array<Diagnoses['code']>>([]);
-  const [diagnosisCodes, setDiagnosisCodes] = useState<string>('');
-  const [type, setType] = useState<EntryTypes>();
+  const [diagnosisCodes, setDiagnosisCodes] = useState<Array<Diagnoses['code']>>([]);
+  //const [diagnosisCodes, setDiagnosisCodes] = useState<string>('');
+  const [type, setType] = useState<EntryTypes | string>('');
   const [dischargeDate, setDischargeDate] = useState<string>('');
   const [dischargeCriteria, setDischargeCriteria] = useState<string>('');
   const [employerName, setEmployerName] = useState<string>('');
-  const [healthCheckRating, setHealthCheckRating] = useState<number>(0);
+  const [healthCheckRating, setHealthCheckRating] = useState<string>('');
   const [sickLeaveStartDate, setSickLeaveStartDate] = useState<string>('');
   const [sickLeaveEndDate, setSickLeaveEndDate] = useState<string>('');
 
@@ -40,7 +41,7 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
         description,
         date,
         specialist,
-        diagnosisCodes: handleAddDiagnosisCode(diagnosisCodes),
+        diagnosisCodes: diagnosisCodes,
     };
     
     switch(type) {
@@ -59,7 +60,7 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
             onSubmit({
                 ...baseEntry,
                 type,
-                healthCheckRating: healthCheckRating
+                healthCheckRating: Number(healthCheckRating)
             });
             break;
 
@@ -89,8 +90,27 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
     }
   };
 
+  const onHealthCheckRatingChange = (event: SelectChangeEvent<string>) => {
+    event.preventDefault();
+    if ( typeof event.target.value === "number") {
+      const value = event.target.value;
+      const entryHealthCheckRating: string | undefined = Object.values(HealthCheckRating).find(e => Number(e) === value)?.toString();
+      
+      if (entryHealthCheckRating) {
+        setHealthCheckRating(entryHealthCheckRating);
+      }
+    }
+  };
+
   const typeOptions: TypeOption[] = Object.values(EntryTypes).map(v => ({
     value: v, label: v.toString()
+  }));
+
+  const healthCheckEntryOptions: HealthCheckRatingOption[] = Object.keys(HealthCheckRating)
+  .filter(key => isNaN(Number(key)))
+  .map(key => ({
+    value: HealthCheckRating[key as keyof typeof HealthCheckRating],
+    label: key
   }));
 
   return (
@@ -102,9 +122,9 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
           value={description}
           onChange={({ target }) => setDescription(target.value)}
         />
+        <InputLabel>Date</InputLabel>
         <TextField
-          label="Date"
-          placeholder="YYYY-MM-DD"
+          type="date"
           fullWidth
           value={date}
           onChange={({ target }) => setDate(target.value)}
@@ -115,12 +135,8 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
           value={specialist}
           onChange={({ target }) => setSpecialist(target.value)}
         />
-        <TextField
-          label="Diagnose codes"
-          fullWidth
-          value={diagnosisCodes}
-          onChange={({ target }) => setDiagnosisCodes(target.value)}
-        />
+
+        <DiagnoseCodesSelect diagnoses={diagnosisCodes} setDiagnoses={setDiagnosisCodes}/>
 
         <InputLabel style={{ marginTop: 20 }}>Type</InputLabel>
         <Select
@@ -149,50 +165,64 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
                         value={employerName}
                         onChange={({ target }) => setEmployerName(target.value)}
                     />
+                    <InputLabel>Sick Leave</InputLabel>
+                    <InputLabel sx={{marginLeft: '30px', width: 'calc(100% - 30px)'}}>Start date</InputLabel>
                     <TextField
-                        label="Sick Leave Start Date"
-                        placeholder="YYYY-MM-DD"
+                        type="date"
                         fullWidth
                         value={sickLeaveStartDate}
+                        sx={{marginLeft: '30px', width: 'calc(100% - 30px)'}}
                         onChange={({ target }) => setSickLeaveStartDate(target.value)}
                     />
-                        <TextField
-                            label="Sick Leave End Date"
-                            placeholder="YYYY-MM-DD"
-                            fullWidth
-                            value={sickLeaveEndDate}
-                            onChange={({ target }) => setSickLeaveEndDate(target.value)}
-                        />
+                    <InputLabel sx={{marginLeft: '30px', width: 'calc(100% - 30px)'}}>End date</InputLabel>
+                    <TextField
+                    type="date"
+                        fullWidth
+                        value={sickLeaveEndDate}
+                        sx={{marginLeft: '30px', width: 'calc(100% - 30px)'}}
+                        onChange={({ target }) => setSickLeaveEndDate(target.value)}
+                    />
                 </>
         }
         {
             type === EntryTypes.HealthCheck &&
                 <>
-                    <TextField
-                        label="HealthCheckRating"
-                        fullWidth
-                        value={healthCheckRating}
-                        onChange={({ target }) => setHealthCheckRating(Number(target.value))}
-                    />
-
+                    <InputLabel style={{ marginTop: 10 }}>HealthCheckRating</InputLabel>
+                    <Select
+                      label="HealthCheckRating"
+                      fullWidth
+                      value={healthCheckRating}
+                      onChange={onHealthCheckRatingChange}
+                    >
+                    {healthCheckEntryOptions.map(option =>
+                      <MenuItem
+                        key={option.label}
+                        value={option.value}
+                      >
+                        {option.label
+                      }</MenuItem>
+                    )}
+                    </Select>
                 </>
         }
         {
             type === EntryTypes.Hospital &&
                 <>
+                    <InputLabel>Discharge</InputLabel>
+                    <InputLabel sx={{marginLeft: '30px', width: 'calc(100% - 30px)'}}>Date</InputLabel>
                     <TextField
-                        label="Discharge date"
-                        placeholder="YYYY-MM-DD"
-                        fullWidth
+                        type="date"
                         value={dischargeDate}
+                        sx={{marginLeft: '30px', width: 'calc(100% - 30px)'}}
                         onChange={({ target }) => setDischargeDate(target.value)}
                     />
-                        <TextField
-                            label="Discharge Criteria"
-                            fullWidth
-                            value={dischargeCriteria}
-                            onChange={({ target }) => setDischargeCriteria(target.value)}
-                        />
+                    <TextField
+                        label="Criteria"
+                        fullWidth
+                        value={dischargeCriteria}
+                        sx={{marginLeft: '30px', width: 'calc(100% - 30px)'}}
+                        onChange={({ target }) => setDischargeCriteria(target.value)}
+                    />
                 </>
         }
         

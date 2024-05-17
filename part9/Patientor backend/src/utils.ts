@@ -173,7 +173,7 @@ const parseBaseEntry = (object: object): newBaseEntry => {
 			description: parseEntryDescription(object.description),
 			date: parseEntryDate(object.date),
 			specialist: parseEntrySpecialist(object.specialist),
-			diagnosisCodes: parseEntryDiagnosisCodes(object.diagnosisCodes),
+			diagnosisCodes: parseEntryDiagnosisCodes(object),
 		};
 
 		return baseEntry;
